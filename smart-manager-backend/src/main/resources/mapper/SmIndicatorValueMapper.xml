@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.smart.manager.mapper.SmIndicatorValueMapper">
+
+    <select id="selectValueList" resultType="com.smart.manager.entity.SmIndicatorValue">
+        SELECT v.*
+        FROM sm_indicator_value v
+        LEFT JOIN sys_dept d ON v.dept_id = d.id
+        WHERE 1=1
+        <if test="val.indicatorId != null">
+            AND v.indicator_id = #{val.indicatorId}
+        </if>
+        <if test="val.periodDate != null and val.periodDate != ''">
+            AND v.period_date = #{val.periodDate}
+        </if>
+        <!-- 数据权限过滤：根据 dept_id 关联 sys_dept 进行过滤 -->
+        ${val.params.dataScope}
+        ORDER BY v.period_date DESC
+    </select>
+
+</mapper>

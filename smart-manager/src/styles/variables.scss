@@ -1,0 +1,225 @@
+/* ========================================
+   智慧管理平台设计系统 v1.0
+   "反主流" Medical Vitality Theme
+   ======================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600;700&display=swap');
+
+:root {
+  /* ===== 核心色彩：Medical Vitality Palette ===== */
+
+  /* 主色调：生命绿 - 象征健康与活力 */
+  --primary: #0dbda8;
+  --primary-light: #14d4bc;
+  --primary-dark: #0a9d8a;
+  --primary-glow: rgba(13, 189, 168, 0.15);
+  --primary-subtle: rgba(13, 189, 168, 0.08);
+
+  /* 辅助色彩 - 功能性色板（移除紫色）*/
+  --accent-coral: #FF6B6B;
+  /* 珊瑚红 - 警告/紧急 */
+  --accent-amber: #FFB84D;
+  /* 琥珀黄 - 提醒/待办 */
+  --accent-sky: #4FC3F7;
+  /* 天空蓝 - 信息/数据 */
+  --accent-sage: #81C784;
+  /* 鼠尾草绿 - 成功/健康 */
+  --accent-peach: #FFAB91;
+  /* 蜜桃橙 - 次要强调 */
+
+  /* 中性色彩 */
+  --gray-50: #FAFBFC;
+  --gray-100: #F4F6F8;
+  --gray-200: #E8ECF0;
+  --gray-300: #DFE3E8;
+  --gray-400: #C1C7CD;
+  --gray-500: #8F96A1;
+  --gray-600: #5E6670;
+  --gray-700: #3D4551;
+  --gray-800: #272E38;
+  --gray-900: #1A1F28;
+
+  /* 语义化颜色 */
+  --success: #81C784;
+  --warning: #FFB84D;
+  --error: #FF6B6B;
+  --info: #4FC3F7;
+
+  /* 背景色 */
+  --bg-color: #FAFBFC;
+  --bg-glass: rgba(255, 255, 255, 0.7);
+  --bg-glass-strong: rgba(255, 255, 255, 0.85);
+  --bg-surface: #FFFFFF;
+
+  /* 文本色 */
+  --text-primary: #1A1F28;
+  --text-regular: #3D4551;
+  --text-secondary: #8F96A1;
+  --text-placeholder: #C1C7CD;
+
+  /* 边框色 */
+  --border-color-base: #E8ECF0;
+  --border-color-light: #F4F6F8;
+  --border-glass: rgba(255, 255, 255, 0.3);
+
+  /* ===== 渐变组合 ===== */
+  --gradient-health: linear-gradient(135deg, #0dbda8 0%, #14d4bc 100%);
+  --gradient-warm: linear-gradient(135deg, #FFB84D 0%, #FFAB91 100%);
+  --gradient-cool: linear-gradient(135deg, #4FC3F7 0%, #81C784 100%);
+  --gradient-vitality: linear-gradient(135deg, #81C784 0%, #0dbda8 100%);
+  --gradient-coral: linear-gradient(135deg, #FF6B6B 0%, #FFAB91 100%);
+
+  /* ===== 字体系统 ===== */
+  --font-family-base: 'Outfit', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-family-body: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-family-mono: 'JetBrains Mono', 'Consolas', monospace;
+
+  /* 字阶 */
+  --text-5xl: 3rem;
+  /* 48px */
+  --text-4xl: 2.25rem;
+  /* 36px */
+  --text-3xl: 1.875rem;
+  /* 30px */
+  --text-2xl: 1.5rem;
+  /* 24px */
+  --text-xl: 1.25rem;
+  /* 20px */
+  --text-lg: 1.125rem;
+  /* 18px */
+  --text-base: 1rem;
+  /* 16px */
+  --text-sm: 0.875rem;
+  /* 14px */
+  --text-xs: 0.75rem;
+  /* 12px */
+
+  /* 字重 */
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+  --font-extrabold: 800;
+
+  /* ===== 阴影系统 ===== */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-base: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+  --shadow-glow-primary: 0 0 20px var(--primary-glow);
+
+  /* ===== 间距系统 ===== */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+
+  /* ===== 圆角 ===== */
+  --radius-sm: 8px;
+  --radius-base: 12px;
+  --radius-md: 16px;
+  --radius-lg: 20px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  /* ===== 动画时长 ===== */
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 350ms;
+  --duration-slower: 500ms;
+
+  /* ===== 缓动函数（拒绝线性！）===== */
+  --ease-smooth: cubic-bezier(0.4, 0.0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --ease-elastic: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ===== 布局 ===== */
+  --header-height: 64px;
+  --sidebar-width: 240px;
+  --max-width-container: 1600px;
+
+  /* ===== 兼容旧版变量（渐进式迁移）===== */
+  --primary-color: var(--primary);
+  --primary-light: var(--primary-light);
+  --primary-dark: var(--primary-dark);
+  --secondary-color: var(--accent-sky);
+  --success-color: var(--success);
+  --warning-color: var(--warning);
+  --danger-color: var(--error);
+  --info-color: var(--info);
+  --border-color-base: var(--border-color-base);
+  --border-color-light: var(--border-color-light);
+  --box-shadow-sm: var(--shadow-sm);
+  --box-shadow-base: var(--shadow-base);
+  --box-shadow-hover: var(--shadow-lg);
+  --box-shadow-card: var(--shadow-glass);
+  --border-radius-base: var(--radius-base);
+  --border-radius-lg: var(--radius-lg);
+  --transition-fast: var(--duration-fast) var(--ease-smooth);
+  --transition-normal: var(--duration-normal) var(--ease-smooth);
+}
+
+/* ========================================
+   暗黑模式主题变量
+   ======================================== */
+html[data-theme='dark'] {
+  /* 主色调保持不变 */
+  --primary: #14d4bc;
+  --primary-light: #1de5cb;
+  --primary-dark: #0dbda8;
+
+  /* 辅助色 - 调整亮度以适应暗背景 */
+  --accent-coral: #FF8787;
+  --accent-amber: #FFC876;
+  --accent-sky: #6DD5FA;
+  --accent-sage: #9CDFB0;
+  --accent-peach: #FFB8A0;
+
+  /* 暗黑模式中性色 */
+  --gray-50: #1E2530;
+  --gray-100: #252D3C;
+  --gray-200: #2F3847;
+  --gray-300: #3D4859;
+  --gray-400: #4E5B70;
+  --gray-500: #7A8599;
+  --gray-600: #A0AEBF;
+  --gray-700: #C5D0DE;
+  --gray-800: #DEE5ED;
+  --gray-900: #F0F4F8;
+
+  /* 语义化颜色 */
+  --success: #9CDFB0;
+  --warning: #FFC876;
+  --error: #FF8787;
+  --info: #6DD5FA;
+
+  /* 背景色 */
+  --bg-color: #1A1F28;
+  --bg-glass: rgba(30, 37, 48, 0.8);
+  --bg-glass-strong: rgba(30, 37, 48, 0.95);
+  --bg-surface: #252D3C;
+
+  /* 文本色 */
+  --text-primary: #F0F4F8;
+  --text-regular: #DEE5ED;
+  --text-secondary: #A0AEBF;
+  --text-placeholder: #7A8599;
+
+  /* 边框色 */
+  --border-color-base: #3D4859;
+  --border-color-light: #2F3847;
+  --border-glass: rgba(255, 255, 255, 0.1);
+
+  /* 阴影系统 - 暗黑模式使用更深的阴影 */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-base: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.6);
+  --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+  --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+}

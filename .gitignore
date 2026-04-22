@@ -1,0 +1,33 @@
+# Dependencies & build
+node_modules/
+**/node_modules/
+dist/
+dist-ssr/
+smart-manager-backend/target/
+*.class
+
+# Local tooling (portable Maven, etc.)
+.tools/
+
+# Env & secrets
+.env
+.env.*
+!.env.example
+
+# Logs & OS
+logs/
+*.log
+.DS_Store
+Thumbs.db
+.idea/
+*.sw?
+
+# Editor (keep optional VSCode extensions whitelist in subprojects if needed)
+.vscode/
+
+# Local / scratch / test artifacts
+**/test-results/
+audit_log.txt
+audit_result.json
+error_*.png
+*.bak
