@@ -1,0 +1,5 @@
+# 在 Railway Variables 中设置 SPRING_PROFILES_ACTIVE=railway 后生效。
+# 内网主机写死为 MySQL 插件默认 DNS，避免 MYSQL_HOST 在控制台被存成空串时退回 localhost 导致 Connection refused。
+spring:
+  datasource:
+    url: jdbc:mysql://mysql.railway.internal:${MYSQL_PORT:3306}/${MYSQL_DATABASE:smart_manager_db}?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&useSSL=false
