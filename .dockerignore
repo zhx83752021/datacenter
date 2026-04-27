@@ -1,0 +1,14 @@
+# 缩小构建上下文，加快 docker build / Railway 上传
+.git
+**/.git
+
+smart-manager/node_modules
+smart-manager/dist
+smart-manager/.agent
+
+smart-manager-backend/target
+
+.idea
+.vscode
+**/*.log
+hs_err_pid*.log
