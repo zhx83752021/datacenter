@@ -100,6 +100,20 @@ public class SmartManagerBackendApplication {
                                                                 ") COMMENT='指标看板目标设定表'");
                         } catch (Exception ignored) {
                         }
+                        // 线上库仅有空表时专项报表中心无数据；本地常有导入/report_init。表为空则写入演示行（与常见前端演示一致）。
+                        try {
+                                Integer reportCnt = jdbcTemplate.queryForObject(
+                                                "SELECT COUNT(*) FROM sm_report", Integer.class);
+                                if (reportCnt != null && reportCnt == 0) {
+                                        jdbcTemplate.execute(
+                                                        "INSERT INTO sm_report (name, type, dept, status, del_flag, create_by, create_time, update_time) VALUES "
+                                                                        + "('2024年5月运营月报', '月报', '信息科', '已发布', '0', 'admin', NOW(), NOW()), "
+                                                                        + "('2024年第一季度质量监控报告', '季报', '医务处', '待审核', '0', 'admin', NOW(), NOW()), "
+                                                                        + "('2023年度全院业绩考评', '年报', '智慧管理中心', '已归档', '0', 'admin', NOW(), NOW()), "
+                                                                        + "('DRG支付改革专项分析', '专项', '医务处', '草稿', '0', 'admin', NOW(), NOW())");
+                                }
+                        } catch (Exception ignored) {
+                        }
                         try {
                                 jdbcTemplate.execute(
                                                 "CREATE TABLE IF NOT EXISTS sm_dashboard (" +
