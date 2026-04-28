@@ -155,6 +155,49 @@ public class SmartManagerBackendApplication {
                         } catch (Exception ignored) {
                         }
 
+                        // 角色中文乱码（???）：常见于客户端/脚本非 UTF-8 写入；强制矫正为 init.sql 文案。
+                        try {
+                                jdbcTemplate.execute(
+                                                "UPDATE sys_role SET role_name = '普通角色' WHERE role_key = 'common'");
+                        } catch (Exception ignored) {
+                        }
+                        try {
+                                jdbcTemplate.execute(
+                                                "UPDATE sys_user SET real_name = '系统管理员' WHERE username = 'admin' AND (real_name IS NULL OR real_name = '' OR real_name LIKE '%?%')");
+                        } catch (Exception ignored) {
+                        }
+                        try {
+                                jdbcTemplate.execute(
+                                                "UPDATE sys_user SET dept_id = 100 WHERE username = 'admin' AND dept_id IS NULL");
+                        } catch (Exception ignored) {
+                        }
+                        // 演示/空表时：操作日志、登录日志无自动写入（@Log 仅部分接口；未接登录审计），表在管理台/统计里显空。表为空时插入少量演示行。
+                        try {
+                                Integer operCnt = jdbcTemplate.queryForObject(
+                                                "SELECT COUNT(*) FROM sys_oper_log", Integer.class);
+                                if (operCnt != null && operCnt == 0) {
+                                        jdbcTemplate.execute(
+                                                        "INSERT INTO sys_oper_log (title, business_type, request_method, operator_type, oper_name, oper_url, oper_ip, status, oper_time) VALUES "
+                                                                        + "('用户管理', 2, 'PUT', 1, 'admin', '/api/system/user', '127.0.0.1', 0, NOW()), "
+                                                                        + "('角色管理', 1, 'POST', 1, 'admin', '/api/system/role', '127.0.0.1', 0, NOW()), "
+                                                                        + "('指标知识库', 5, 'GET', 1, 'admin', '/api/indicator/lib/list', '127.0.0.1', 0, DATE_SUB(NOW(), INTERVAL 1 HOUR)), "
+                                                                        + "('登录认证', 0, 'POST', 1, 'admin', '/api/auth/login', '127.0.0.1', 0, DATE_SUB(NOW(), INTERVAL 2 HOUR))");
+                                }
+                        } catch (Exception ignored) {
+                        }
+                        try {
+                                Integer loginCnt = jdbcTemplate.queryForObject(
+                                                "SELECT COUNT(*) FROM sys_logininfor", Integer.class);
+                                if (loginCnt != null && loginCnt == 0) {
+                                        jdbcTemplate.execute(
+                                                        "INSERT INTO sys_logininfor (user_name, ipaddr, login_location, browser, os, status, msg, login_time) VALUES "
+                                                                        + "('admin', '127.0.0.1', '内网', 'Chrome', 'Windows', '0', '登录成功', NOW()), "
+                                                                        + "('admin', '127.0.0.1', '内网', 'Chrome', 'Windows', '0', '登录成功', DATE_SUB(NOW(), INTERVAL 1 DAY)), "
+                                                                        + "('admin', '127.0.0.1', '内网', 'Chrome', 'Windows', '1', '密码错误', DATE_SUB(NOW(), INTERVAL 2 DAY))");
+                                }
+                        } catch (Exception ignored) {
+                        }
+
                         // --- 2. 核心指标数据初始化 (分段 try-catch, 防止外键约束中断) ---
                         try {
                                 Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM sm_indicator_lib",
