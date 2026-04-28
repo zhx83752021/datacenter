@@ -11,9 +11,9 @@ INSERT IGNORE INTO sys_role (id, role_name, role_key, role_sort, data_scope, ind
 -- 如果不存在则插入用户, 若已存在则重置密码
 INSERT INTO sys_user (username, password, real_name, dept_id, status)
 VALUES
-('president', '$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG', '王院长', 100, 1),
-('director_li', '$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG', '李主任', 101, 1),
-('wangwu', '$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG', '王五(普通中层)', 102, 1)
+('president', '$2a$10$VKFGYzOaecwPweFeyg8QPOJ6p9lTExlamYaM49a1kSo2L1yTBwkJK', '王院长', 100, 1),
+('director_li', '$2a$10$VKFGYzOaecwPweFeyg8QPOJ6p9lTExlamYaM49a1kSo2L1yTBwkJK', '李主任', 101, 1),
+('wangwu', '$2a$10$VKFGYzOaecwPweFeyg8QPOJ6p9lTExlamYaM49a1kSo2L1yTBwkJK', '王五(普通中层)', 102, 1)
 ON DUPLICATE KEY UPDATE password = VALUES(password);
 
 -- 建立用户-角色绑定关系 (需要先找到对应生成的ID)

@@ -30,9 +30,9 @@ CREATE TABLE sys_user (
   update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户表';
 
--- 初始管理员 (密码: password)
+-- 初始管理员（密码明文 123456）
 INSERT INTO sys_user (id, username, password, real_name, status) VALUES
-(1, 'admin', '$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG', '系统管理员', 1);
+(1, 'admin', '$2a$10$VKFGYzOaecwPweFeyg8QPOJ6p9lTExlamYaM49a1kSo2L1yTBwkJK', '系统管理员', 1);
 
 -- 角色表
 DROP TABLE IF EXISTS sys_role;

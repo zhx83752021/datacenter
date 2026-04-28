@@ -307,9 +307,9 @@ CREATE TABLE sys_oper_log (
 -- 5. 初始基础数据
 -- ----------------------------
 
--- 初始管理员账号 (密码: password)
+-- 初始管理员账号（密码明文 123456）
 INSERT INTO sys_user (id, username, password, real_name, status) VALUES
-(1, 'admin', '$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG', '系统管理员', 1);
+(1, 'admin', '$2a$10$VKFGYzOaecwPweFeyg8QPOJ6p9lTExlamYaM49a1kSo2L1yTBwkJK', '系统管理员', 1);
 
 -- 初始角色
 INSERT INTO sys_role (id, role_name, role_key, role_sort, data_scope, indicator_sensitive, status) VALUES
