@@ -22,7 +22,7 @@ public class SmartManagerBackendApplication {
         }
 
         @Bean
-        @Order(Ordered.HIGHEST_PRECEDENCE)
+        @Order(Ordered.HIGHEST_PRECEDENCE + 1)
         public CommandLineRunner migrateDatabase(JdbcTemplate jdbcTemplate) {
                 return args -> {
                         // --- 1. 结构变更与基础表 ---
