@@ -1,5 +1,6 @@
--- 创建针对前端角色的测试账号补充脚本
--- 密码均为 123456 (相同的BCrypt散列)
+-- 创建针对前端角色的测试账号补充脚本（旧库或未合并 init 时手工执行）。
+-- 新库请直接导入 init.sql（已包含 president / director_li / wangwu 及 indicator_sensitive）。
+-- 密码均为 123456（与下方 BCrypt 一致）。
 
 USE smart_manager_db;
 
@@ -14,7 +15,10 @@ VALUES
 ('president', '$2a$10$VKFGYzOaecwPweFeyg8QPOJ6p9lTExlamYaM49a1kSo2L1yTBwkJK', '王院长', 100, 1),
 ('director_li', '$2a$10$VKFGYzOaecwPweFeyg8QPOJ6p9lTExlamYaM49a1kSo2L1yTBwkJK', '李主任', 101, 1),
 ('wangwu', '$2a$10$VKFGYzOaecwPweFeyg8QPOJ6p9lTExlamYaM49a1kSo2L1yTBwkJK', '王五(普通中层)', 102, 1)
-ON DUPLICATE KEY UPDATE password = VALUES(password);
+ON DUPLICATE KEY UPDATE
+  password = VALUES(password),
+  del_flag = 0,
+  status = 1;
 
 -- 建立用户-角色绑定关系 (需要先找到对应生成的ID)
 REPLACE INTO sys_user_role (user_id, role_id)

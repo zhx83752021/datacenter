@@ -1,10 +1,10 @@
 package com.smart.manager.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.smart.manager.entity.SysUser;
 import com.smart.manager.mapper.SysUserMapper;
-import com.smart.manager.utils.JwtUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -30,10 +30,13 @@ public class AuthService implements UserDetailsService {
     private final SysUserMapper sysUserMapper;
     private final SysRoleMapper sysRoleMapper;
     private final SysMenuMapper sysMenuMapper;
+    private final JdbcTemplate jdbcTemplate;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        SysUser user = sysUserMapper.selectOne(new LambdaQueryWrapper<SysUser>().eq(SysUser::getUsername, username));
+        String name = username != null ? username.trim() : null;
+        // 不走 BaseMapper：旧库 del_flag 可能为 NULL，MyBatis-Plus TableLogic 会筛掉导致永远「密码错误」
+        SysUser user = findUserForLogin(name);
         if (user == null) {
             throw new UsernameNotFoundException("User not found: " + username);
         }
@@ -54,7 +57,7 @@ public class AuthService implements UserDetailsService {
         }
 
         // 为 admin 提供临时超级权限和具体的模块权限，绕过精确匹配导致的 403
-        if ("admin".equals(username)) {
+        if ("admin".equals(name)) {
             authorities.add(new SimpleGrantedAuthority("ROLE_admin"));
             authorities.add(new SimpleGrantedAuthority("*:*:*"));
             authorities.add(new SimpleGrantedAuthority("sm:monitor:query"));
@@ -73,5 +76,14 @@ public class AuthService implements UserDetailsService {
         }
 
         return new LoginUser(user, roles, perms, authorities);
+    }
+
+    private SysUser findUserForLogin(String username) {
+        if (username == null || username.isEmpty()) {
+            return null;
+        }
+        var sql = "SELECT * FROM sys_user WHERE username = ? AND (del_flag IS NULL OR del_flag = 0) LIMIT 1";
+        var list = jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(SysUser.class), username);
+        return list.isEmpty() ? null : list.get(0);
     }
 }

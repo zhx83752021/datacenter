@@ -33,6 +33,7 @@ CREATE TABLE sys_role (
   role_key VARCHAR(50) NOT NULL UNIQUE COMMENT '角色权限字符',
   role_sort INT DEFAULT 0 COMMENT '显示顺序',
   data_scope CHAR(1) DEFAULT '1' COMMENT '数据范围（1：全部数据权限 2：自定数据权限 3：本部门数据权限 4：本部门及以下数据权限 5：仅本人数据权限）',
+  indicator_sensitive INT DEFAULT 0 COMMENT '敏感指标查看权限 (0:否, 1:是)',
   status INT DEFAULT 1 COMMENT '角色状态（0停用 1正常）',
   del_flag INT DEFAULT 0 COMMENT '删除标志（0代表存在 2代表删除）',
   create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
@@ -40,9 +41,11 @@ CREATE TABLE sys_role (
   remark VARCHAR(500) DEFAULT NULL COMMENT '备注'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='角色信息表';
 
-INSERT INTO sys_role (id, role_name, role_key, role_sort, data_scope, status) VALUES
-(1, '超级管理员', 'admin', 1, '1', 1),
-(2, '普通角色', 'common', 2, '2', 1);
+INSERT INTO sys_role (id, role_name, role_key, role_sort, data_scope, indicator_sensitive, status) VALUES
+(1, '超级管理员', 'admin', 1, '1', 0, 1),
+(2, '普通角色', 'common', 2, '2', 0, 1),
+(3, '院长', 'president', 3, '1', 1, 1),
+(4, '科室主任', 'director', 4, '3', 0, 1);
 
 
 -- 3. 菜单权限表
@@ -97,6 +100,11 @@ INSERT INTO sys_dept (id, parent_id, dept_name, order_num) VALUES
 (101, 100, '信息科', 1),
 (102, 100, '医务处', 2);
 
+-- 登录页展示的角色演示账号（密码均为 123456，BCrypt 与 admin 相同）
+INSERT INTO sys_user (id, username, password, real_name, dept_id, status) VALUES
+(2, 'president', '$2a$10$VKFGYzOaecwPweFeyg8QPOJ6p9lTExlamYaM49a1kSo2L1yTBwkJK', '王院长', 100, 1),
+(3, 'director_li', '$2a$10$VKFGYzOaecwPweFeyg8QPOJ6p9lTExlamYaM49a1kSo2L1yTBwkJK', '李主任', 101, 1),
+(4, 'wangwu', '$2a$10$VKFGYzOaecwPweFeyg8QPOJ6p9lTExlamYaM49a1kSo2L1yTBwkJK', '王五(普通中层)', 102, 1);
 
 -- 5. 用户和角色关联表
 DROP TABLE IF EXISTS sys_user_role;
@@ -106,7 +114,11 @@ CREATE TABLE sys_user_role (
   PRIMARY KEY (user_id, role_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户和角色关联表';
 
-INSERT INTO sys_user_role (user_id, role_id) VALUES (1, 1);
+INSERT INTO sys_user_role (user_id, role_id) VALUES
+(1, 1),
+(2, 3),
+(3, 4),
+(4, 2);
 
 
 -- 6. 角色和菜单关联表
