@@ -11,6 +11,9 @@ import com.smart.manager.service.ISysUserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -21,17 +24,27 @@ import java.util.List;
  */
 @Slf4j
 @Component
+@Order(Ordered.LOWEST_PRECEDENCE)
 @RequiredArgsConstructor
 public class IndicatorDataInitializer implements CommandLineRunner {
 
     private final ISmIndicatorLibService indicatorService;
     private final ISysUserService userService;
     private final ISysRoleService roleService;
+    private final JdbcTemplate jdbcTemplate;
 
     @Override
     public void run(String... args) throws Exception {
-        // 先修复可能存在的乱码
-        fixMangledData();
+        // 先修复用户/角色乱码（仅依赖 init.sql 中的 sys_* 表）
+        fixUserAndRoleMangledData();
+
+        if (!smIndicatorLibTableExists()) {
+            log.warn("表 sm_indicator_lib 不存在，已跳过指标库初始化（仅执行了用户/角色乱码修复）。"
+                    + "请在库中导入 smart-manager-backend/sql/rebuild_tables.sql 或含 sm_indicator_lib 的建表脚本后重启。");
+            return;
+        }
+
+        fixIndicatorMangledData();
 
         log.info(">>>> [系统初始化] 正在同步核心指标体系 (对齐 2025 监测标准)... <<<<");
 
@@ -105,24 +118,39 @@ public class IndicatorDataInitializer implements CommandLineRunner {
 
     }
 
-    /**
-     * 强行修复可能被错误字符集导入的中文名称
-     */
-    private void fixMangledData() {
-        log.info(">>>> [系统初始化] 正在排查并修复中文乱码记录... <<<<");
+    /** 当前库是否已创建 sm_indicator_lib（仅 init.sql 时不会有此表） */
+    private boolean smIndicatorLibTableExists() {
+        try {
+            List<String> names = jdbcTemplate.queryForList("SHOW TABLES LIKE 'sm_indicator_lib'", String.class);
+            if (!names.isEmpty()) {
+                return true;
+            }
+        } catch (Exception ignored) {
+            // fall through
+        }
+        try {
+            Integer n = jdbcTemplate.queryForObject(
+                    "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = 'sm_indicator_lib'",
+                    Integer.class);
+            return n != null && n > 0;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 
-        // 修复用户姓名
+    private void fixUserAndRoleMangledData() {
+        log.info(">>>> [系统初始化] 正在排查并修复用户/角色中文乱码... <<<<");
         updateUserRealName("president", "王院长");
         updateUserRealName("director_li", "李主任");
         updateUserRealName("wangwu", "王五");
         updateUserRealName("admin", "系统管理员");
-
-        // 修复角色名称
         updateRoleName("president", "院长");
         updateRoleName("director", "科室主任");
         updateRoleName("admin", "超级管理员");
+    }
 
-        // 修复关键指标名称 (针对已经插入可能存在乱码的记录)
+    private void fixIndicatorMangledData() {
+        log.info(">>>> [系统初始化] 正在排查指标库中文乱码... <<<<");
         updateIndicatorName("ECO001", "全院总收入");
         updateIndicatorName("EFF001", "门急诊总人次");
         updateIndicatorName("QUA014_N", "急危重症患者抢救成功次数");

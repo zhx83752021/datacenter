@@ -5,6 +5,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -20,6 +22,7 @@ public class SmartManagerBackendApplication {
         }
 
         @Bean
+        @Order(Ordered.HIGHEST_PRECEDENCE)
         public CommandLineRunner migrateDatabase(JdbcTemplate jdbcTemplate) {
                 return args -> {
                         // --- 1. 结构变更与基础表 ---
