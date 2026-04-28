@@ -155,49 +155,6 @@ public class SmartManagerBackendApplication {
                         } catch (Exception ignored) {
                         }
 
-                        // 角色中文乱码（???）：常见于客户端/脚本非 UTF-8 写入；强制矫正为 init.sql 文案。
-                        try {
-                                jdbcTemplate.execute(
-                                                "UPDATE sys_role SET role_name = '普通角色' WHERE role_key = 'common'");
-                        } catch (Exception ignored) {
-                        }
-                        try {
-                                jdbcTemplate.execute(
-                                                "UPDATE sys_user SET real_name = '系统管理员' WHERE username = 'admin' AND (real_name IS NULL OR real_name = '' OR real_name LIKE '%?%')");
-                        } catch (Exception ignored) {
-                        }
-                        try {
-                                jdbcTemplate.execute(
-                                                "UPDATE sys_user SET dept_id = 100 WHERE username = 'admin' AND dept_id IS NULL");
-                        } catch (Exception ignored) {
-                        }
-                        // 演示/空表时：操作日志、登录日志无自动写入（@Log 仅部分接口；未接登录审计），表在管理台/统计里显空。表为空时插入少量演示行。
-                        try {
-                                Integer operCnt = jdbcTemplate.queryForObject(
-                                                "SELECT COUNT(*) FROM sys_oper_log", Integer.class);
-                                if (operCnt != null && operCnt == 0) {
-                                        jdbcTemplate.execute(
-                                                        "INSERT INTO sys_oper_log (title, business_type, request_method, operator_type, oper_name, oper_url, oper_ip, status, oper_time) VALUES "
-                                                                        + "('用户管理', 2, 'PUT', 1, 'admin', '/api/system/user', '127.0.0.1', 0, NOW()), "
-                                                                        + "('角色管理', 1, 'POST', 1, 'admin', '/api/system/role', '127.0.0.1', 0, NOW()), "
-                                                                        + "('指标知识库', 5, 'GET', 1, 'admin', '/api/indicator/lib/list', '127.0.0.1', 0, DATE_SUB(NOW(), INTERVAL 1 HOUR)), "
-                                                                        + "('登录认证', 0, 'POST', 1, 'admin', '/api/auth/login', '127.0.0.1', 0, DATE_SUB(NOW(), INTERVAL 2 HOUR))");
-                                }
-                        } catch (Exception ignored) {
-                        }
-                        try {
-                                Integer loginCnt = jdbcTemplate.queryForObject(
-                                                "SELECT COUNT(*) FROM sys_logininfor", Integer.class);
-                                if (loginCnt != null && loginCnt == 0) {
-                                        jdbcTemplate.execute(
-                                                        "INSERT INTO sys_logininfor (user_name, ipaddr, login_location, browser, os, status, msg, login_time) VALUES "
-                                                                        + "('admin', '127.0.0.1', '内网', 'Chrome', 'Windows', '0', '登录成功', NOW()), "
-                                                                        + "('admin', '127.0.0.1', '内网', 'Chrome', 'Windows', '0', '登录成功', DATE_SUB(NOW(), INTERVAL 1 DAY)), "
-                                                                        + "('admin', '127.0.0.1', '内网', 'Chrome', 'Windows', '1', '密码错误', DATE_SUB(NOW(), INTERVAL 2 DAY))");
-                                }
-                        } catch (Exception ignored) {
-                        }
-
                         // --- 2. 核心指标数据初始化 (分段 try-catch, 防止外键约束中断) ---
                         try {
                                 Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM sm_indicator_lib",
@@ -585,6 +542,85 @@ public class SmartManagerBackendApplication {
                                 }
                         } catch (Exception e) {
                                 System.out.println("专家级驾驶舱指标写入失败: " + e.getMessage());
+                        }
+                        // --- 9. 角色名乱码修复、登录/操作日志与预警/目标演示行（空表时；避免管理端图表全空、??? 显示） ---
+                        try {
+                                jdbcTemplate.execute("SET NAMES utf8mb4");
+                        } catch (Exception ignored) {
+                        }
+                        try {
+                                jdbcTemplate.execute(
+                                                "UPDATE sys_role SET role_name = '普通角色' WHERE role_key = 'common'");
+                        } catch (Exception ignored) {
+                        }
+                        try {
+                                Integer loginCnt = jdbcTemplate.queryForObject(
+                                                "SELECT COUNT(*) FROM sys_logininfor", Integer.class);
+                                if (loginCnt != null && loginCnt == 0) {
+                                        jdbcTemplate.execute(
+                                                        "INSERT INTO sys_logininfor (user_name, ipaddr, status, msg, login_time) VALUES "
+                                                                        + "('admin', '127.0.0.1', '0', '登录成功', NOW()), "
+                                                                        + "('admin', '10.0.0.1', '0', '登录成功', DATE_SUB(NOW(), INTERVAL 1 DAY)), "
+                                                                        + "('admin', '192.168.1.1', '0', '登录成功', DATE_SUB(NOW(), INTERVAL 2 DAY))");
+                                }
+                        } catch (Exception ignored) {
+                        }
+                        try {
+                                Integer operCnt = jdbcTemplate.queryForObject(
+                                                "SELECT COUNT(*) FROM sys_oper_log", Integer.class);
+                                if (operCnt != null && operCnt == 0) {
+                                        jdbcTemplate.execute(
+                                                        "INSERT INTO sys_oper_log (title, business_type, method, request_method, operator_type, oper_name, oper_url, status, oper_time) VALUES "
+                                                                        + "('用户管理', 0, 'list', 'GET', 1, 'admin', '/api/system/user/list', 0, NOW()), "
+                                                                        + "('角色管理', 0, 'list', 'GET', 1, 'admin', '/api/system/role/list', 0, DATE_SUB(NOW(), INTERVAL 1 HOUR)), "
+                                                                        + "('菜单查询', 0, 'list', 'GET', 1, 'admin', '/api/system/menu/list', 0, DATE_SUB(NOW(), INTERVAL 3 HOUR))");
+                                }
+                        } catch (Exception ignored) {
+                        }
+                        try {
+                                Integer libCnt = jdbcTemplate.queryForObject(
+                                                "SELECT COUNT(*) FROM sm_indicator_lib", Integer.class);
+                                if (libCnt != null && libCnt > 0) {
+                                        Long firstIndId = jdbcTemplate.queryForObject(
+                                                        "SELECT MIN(id) FROM sm_indicator_lib", Long.class);
+                                        if (firstIndId != null) {
+                                                Integer arCnt = jdbcTemplate.queryForObject(
+                                                                "SELECT COUNT(*) FROM sm_alert_rule", Integer.class);
+                                                if (arCnt != null && arCnt == 0) {
+                                                        jdbcTemplate.execute(String.format(
+                                                                        "INSERT INTO sm_alert_rule (indicator_id, rule_name, operator, threshold, level, status, message_template) "
+                                                                                        + "VALUES (%d, '默认阈值预警', 'GT', 80.0000, 1, 1, '指标超过阈值时请查看')",
+                                                                        firstIndId));
+                                                }
+                                                Integer amCnt = jdbcTemplate.queryForObject(
+                                                                "SELECT COUNT(*) FROM sm_alert_message",
+                                                                Integer.class);
+                                                if (amCnt != null && amCnt == 0) {
+                                                        jdbcTemplate.execute(String.format(
+                                                                        "INSERT INTO sm_alert_message (indicator_id, rule_id, level, content, status, create_time) "
+                                                                                        + "VALUES (%d, NULL, 1, '演示：请关注指标波动', 0, NOW())",
+                                                                        firstIndId));
+                                                }
+                                                Integer tgCnt = jdbcTemplate.queryForObject(
+                                                                "SELECT COUNT(*) FROM sm_target", Integer.class);
+                                                if (tgCnt != null && tgCnt == 0) {
+                                                        jdbcTemplate.execute(String.format(
+                                                                        "INSERT INTO sm_target (indicator_id, target_value, unit, period_type, period_date, dept_code) "
+                                                                                        + "VALUES (%d, 95.0000, '%s', 'M', '2026-04', 'ALL')",
+                                                                        firstIndId, "%"));
+                                                }
+                                                Integer tcCnt = jdbcTemplate.queryForObject(
+                                                                "SELECT COUNT(*) FROM sm_target_config",
+                                                                Integer.class);
+                                                if (tcCnt != null && tcCnt == 0) {
+                                                        jdbcTemplate.execute(String.format(
+                                                                        "INSERT INTO sm_target_config (indicator_id, period, dept_code, target_value, challenge_value, create_by) "
+                                                                                        + "VALUES (%d, '2026', NULL, 90.0000, 95.0000, 'admin')",
+                                                                        firstIndId));
+                                                }
+                                        }
+                                }
+                        } catch (Exception ignored) {
                         }
                 };
         }
