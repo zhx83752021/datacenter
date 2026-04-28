@@ -123,7 +123,7 @@ public class SmartManagerBackendApplication {
                                                                 "description VARCHAR(500), " +
                                                                 "layout_config TEXT, " +
                                                                 "thumbnail VARCHAR(500), " +
-                                                                "status CHAR(1) DEFAULT '0', " +
+                                                                "status VARCHAR(32) DEFAULT 'draft', " +
                                                                 "is_template CHAR(1) DEFAULT '0', " +
                                                                 "del_flag CHAR(1) DEFAULT '0', " +
                                                                 "create_by VARCHAR(64), " +
@@ -132,6 +132,26 @@ public class SmartManagerBackendApplication {
                                                                 "update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
                                                                 +
                                                                 ") COMMENT='驾驶舱看板配置表'");
+                        } catch (Exception ignored) {
+                        }
+                        try {
+                                jdbcTemplate.execute(
+                                                "ALTER TABLE sm_dashboard MODIFY COLUMN status VARCHAR(32) DEFAULT 'draft'");
+                        } catch (Exception ignored) {
+                        }
+                        try {
+                                Integer dashCnt = jdbcTemplate.queryForObject(
+                                                "SELECT COUNT(*) FROM sm_dashboard", Integer.class);
+                                if (dashCnt != null && dashCnt == 0) {
+                                        jdbcTemplate.execute(
+                                                        "INSERT INTO sm_dashboard (name, category, status, del_flag, create_by, create_time, update_time) VALUES "
+                                                                        + "('院长驾驶舱', 'cockpit', 'online', '0', 'admin', '2024-03-04 10:00:00', '2024-03-04 10:00:00'), "
+                                                                        + "('全景运营监控', 'monitor', 'online', '0', 'admin', '2024-03-04 10:00:00', '2024-03-04 10:00:00'), "
+                                                                        + "('运营效率分析', 'theme', 'online', '0', 'admin', '2024-03-04 10:00:00', '2024-03-04 10:00:00'), "
+                                                                        + "('科室驾驶舱', 'cockpit', 'online', '0', 'admin', '2024-03-04 10:00:00', '2024-03-04 10:00:00'), "
+                                                                        + "('重点效率监控', 'monitor', 'offline', '0', 'admin', '2024-03-04 10:00:00', '2024-03-04 10:00:00'), "
+                                                                        + "('月度运营报表', 'report', 'offline', '0', 'admin', '2024-03-04 10:00:00', '2024-03-04 10:00:00')");
+                                }
                         } catch (Exception ignored) {
                         }
 
