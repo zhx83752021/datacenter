@@ -121,10 +121,16 @@ public class SmartManagerBackendApplication {
                                                                 "name VARCHAR(100), " +
                                                                 "category VARCHAR(50), " +
                                                                 "description VARCHAR(500), " +
+                                                                "theme_id BIGINT NULL COMMENT '指标主题分类ID', " +
+                                                                "publish_type VARCHAR(32) NULL COMMENT '发布对象类型', " +
+                                                                "publish_target VARCHAR(500) NULL COMMENT '发布对象ID', " +
+                                                                "url VARCHAR(1000) NULL COMMENT '看板地址', " +
                                                                 "layout_config TEXT, " +
                                                                 "thumbnail VARCHAR(500), " +
                                                                 "status VARCHAR(32) DEFAULT 'draft', " +
                                                                 "is_template CHAR(1) DEFAULT '0', " +
+                                                                "publish_by VARCHAR(64) NULL COMMENT '发布人', " +
+                                                                "publish_time DATETIME NULL COMMENT '发布时间', " +
                                                                 "del_flag CHAR(1) DEFAULT '0', " +
                                                                 "create_by VARCHAR(64), " +
                                                                 "create_time DATETIME DEFAULT CURRENT_TIMESTAMP, " +
@@ -133,6 +139,18 @@ public class SmartManagerBackendApplication {
                                                                 +
                                                                 ") COMMENT='驾驶舱看板配置表'");
                         } catch (Exception ignored) {
+                        }
+                        for (String sql : new String[] {
+                                        "ALTER TABLE sm_dashboard ADD COLUMN theme_id BIGINT NULL COMMENT '指标主题分类ID'",
+                                        "ALTER TABLE sm_dashboard ADD COLUMN publish_type VARCHAR(32) NULL COMMENT '发布对象类型'",
+                                        "ALTER TABLE sm_dashboard ADD COLUMN publish_target VARCHAR(500) NULL COMMENT '发布对象ID'",
+                                        "ALTER TABLE sm_dashboard ADD COLUMN url VARCHAR(1000) NULL COMMENT '看板地址'",
+                                        "ALTER TABLE sm_dashboard ADD COLUMN publish_by VARCHAR(64) NULL COMMENT '发布人'",
+                                        "ALTER TABLE sm_dashboard ADD COLUMN publish_time DATETIME NULL COMMENT '发布时间'" }) {
+                                try {
+                                        jdbcTemplate.execute(sql);
+                                } catch (Exception ignored) {
+                                }
                         }
                         try {
                                 jdbcTemplate.execute(
