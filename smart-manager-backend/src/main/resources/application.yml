@@ -7,8 +7,8 @@ spring:
   application:
     name: smart-manager-backend
   datasource:
-    # 本地：不写 MYSQL_* 即用默认值。Railway：只设 MYSQL_HOST / MYSQL_PORT / MYSQL_DATABASE（避免整条 JDBC 含 & 保存失败）
-    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:smart_manager_db}?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&useSSL=false
+    # DB_* 优先（Railway 关联 MySQL 时可能会覆盖 MYSQL_*，公网 TCP 请用 DB_HOST/DB_PORT）
+    url: jdbc:mysql://${DB_HOST:${MYSQL_HOST:localhost}}:${DB_PORT:${MYSQL_PORT:3306}}/${DB_NAME:${MYSQL_DATABASE:smart_manager_db}}?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&useSSL=false
     username: root
     password: password
     driver-class-name: com.mysql.cj.jdbc.Driver
