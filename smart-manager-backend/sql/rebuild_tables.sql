@@ -242,22 +242,28 @@ CREATE TABLE sys_oper_log (
    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='系统文件存储表';
 
- -- ============================================
- -- sm_dashboard: 对应 SmDashboard
- -- ============================================
- DROP TABLE IF EXISTS sm_dashboard;
- CREATE TABLE sm_dashboard (
-   id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-   name VARCHAR(100) COMMENT '看板名称',
-   category VARCHAR(50) COMMENT '看板分类',
-   description VARCHAR(500) COMMENT '描述',
-   layout_config TEXT COMMENT '布局配置',
-   thumbnail VARCHAR(500) COMMENT '缩略图',
-   status CHAR(1) DEFAULT '0' COMMENT '状态',
-   is_template CHAR(1) DEFAULT '0' COMMENT '是否为模板',
-   del_flag CHAR(1) DEFAULT '0' COMMENT '删除标志',
-   create_by VARCHAR(64) COMMENT '创建人',
-   create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
-   update_by VARCHAR(64) COMMENT '更新人',
-   update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
- ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='看板配置表';
+-- ============================================
+-- sm_dashboard: 对应 SmDashboard
+-- ============================================
+DROP TABLE IF EXISTS sm_dashboard;
+CREATE TABLE sm_dashboard (
+  id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) COMMENT '看板名称',
+  category VARCHAR(50) COMMENT '看板分类',
+  description VARCHAR(500) COMMENT '描述',
+  theme_id BIGINT NULL COMMENT '指标主题分类ID',
+  publish_type VARCHAR(32) NULL COMMENT '发布对象类型',
+  publish_target VARCHAR(500) NULL COMMENT '发布对象ID',
+  url VARCHAR(1000) NULL COMMENT '看板地址',
+  layout_config TEXT COMMENT '布局配置',
+  thumbnail VARCHAR(500) COMMENT '缩略图',
+  status VARCHAR(32) DEFAULT 'draft' COMMENT '状态',
+  is_template CHAR(1) DEFAULT '0' COMMENT '是否为模板',
+  publish_by VARCHAR(64) NULL COMMENT '发布人',
+  publish_time DATETIME NULL COMMENT '发布时间',
+  del_flag CHAR(1) DEFAULT '0' COMMENT '删除标志',
+  create_by VARCHAR(64) COMMENT '创建人',
+  create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+  update_by VARCHAR(64) COMMENT '更新人',
+  update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='看板配置表';
