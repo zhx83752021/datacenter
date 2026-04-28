@@ -1,5 +1,13 @@
-# 在 Railway Variables 中设置 SPRING_PROFILES_ACTIVE=railway 后生效。
-# 内网主机写死为 MySQL 插件默认 DNS，避免 MYSQL_HOST 在控制台被存成空串时退回 localhost 导致 Connection refused。
+# 需配合 Railway Variables：SPRING_PROFILES_ACTIVE=railway
+#
+# MYSQL_HOST / MYSQL_PORT 必须与 MySQL 服务 Variables 一致（建议在「后端」服务里 Reference 或使用 Raw Editor 粘贴）。
+# 若日志出现 UnknownHostException: mysql.railway.internal：
+#   - 优先确认 MySQL 与后端在「同一 Railway 项目」画布上，否则私网域名可能无法解析；
+#   - 或改用 MySQL 面板里 MYSQL_PUBLIC_URL 对应的主机与端口，例如：
+#       MYSQL_HOST=shuttle.proxy.rlwy.net
+#       MYSQL_PORT=<公网映射端口，常见为 50447>
+#
+# 占位符不设默认主机名，避免误连 localhost。
 spring:
   datasource:
-    url: jdbc:mysql://mysql.railway.internal:${MYSQL_PORT:3306}/${MYSQL_DATABASE:smart_manager_db}?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&useSSL=false
+    url: jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:smart_manager_db}?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&useSSL=false
