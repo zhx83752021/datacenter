@@ -17,8 +17,9 @@ public interface SysRoleMapper extends BaseMapper<SysRole> {
      */
     @Select("SELECT DISTINCT r.role_key " +
             "FROM sys_role r " +
-            "LEFT JOIN sys_user_role ur ON ur.role_id = r.id " +
-            "WHERE ur.user_id = #{userId} AND r.status = 1 AND r.del_flag = 0")
+            "INNER JOIN sys_user_role ur ON ur.role_id = r.id " +
+            "WHERE ur.user_id = #{userId} AND r.status = 1 " +
+            "AND (r.del_flag IS NULL OR r.del_flag = 0)")
     List<String> selectRoleKeysByUserId(Long userId);
 
     /**
@@ -29,7 +30,8 @@ public interface SysRoleMapper extends BaseMapper<SysRole> {
      */
     @Select("SELECT DISTINCT r.* " +
             "FROM sys_role r " +
-            "LEFT JOIN sys_user_role ur ON ur.role_id = r.id " +
-            "WHERE ur.user_id = #{userId} AND r.status = 1 AND r.del_flag = 0")
+            "INNER JOIN sys_user_role ur ON ur.role_id = r.id " +
+            "WHERE ur.user_id = #{userId} AND r.status = 1 " +
+            "AND (r.del_flag IS NULL OR r.del_flag = 0)")
     List<SysRole> selectRolesByUserId(Long userId);
 }

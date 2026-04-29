@@ -1,8 +1,11 @@
 -- 创建针对前端角色的测试账号补充脚本（旧库或未合并 init 时手工执行）。
 -- 新库请直接导入 init.sql（已包含 president / director_li / wangwu 及 indicator_sensitive）。
 -- 密码均为 123456（与下方 BCrypt 一致）。
-
-USE smart_manager_db;
+--
+-- 【必看】执行前必须先选中「与应用相同的库」，本文件不再写死 USE。
+-- 后端 application.yml 使用 DB_NAME（默认 smart_manager_db）；Railway MySQL 模板常见库名为 railway。
+-- 若 admin 在库 A，你却 USE smart_manager_db / 连错库，三人会被插进库 B，查询库 A 仍只有 admin。
+-- 在客户端先执行 SELECT DATABASE(); 或与 Railway Variables 里 MYSQLDATABASE / DB_NAME 对齐后再跑本脚本。
 
 -- 插入角色定义
 INSERT IGNORE INTO sys_role (id, role_name, role_key, role_sort, data_scope, indicator_sensitive, status) VALUES
