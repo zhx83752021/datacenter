@@ -23,12 +23,16 @@ ON DUPLICATE KEY UPDATE
   del_flag = 0,
   status = 1;
 
--- 建立用户-角色绑定关系 (需要先找到对应生成的ID)
-REPLACE INTO sys_user_role (user_id, role_id)
-SELECT id, 3 FROM sys_user WHERE username = 'president';
+-- 建立用户-角色绑定（按 role_key 取真实 role_id，避免线上 role 表 id 与本地不一致）
+DELETE ur FROM sys_user_role ur
+INNER JOIN sys_user u ON u.id = ur.user_id
+WHERE u.username IN ('president', 'director_li', 'wangwu');
 
-REPLACE INTO sys_user_role (user_id, role_id)
-SELECT id, 4 FROM sys_user WHERE username = 'director_li';
+INSERT INTO sys_user_role (user_id, role_id)
+SELECT u.id, r.id FROM sys_user u JOIN sys_role r ON r.role_key = 'president' WHERE u.username = 'president';
 
-REPLACE INTO sys_user_role (user_id, role_id)
-SELECT id, 2 FROM sys_user WHERE username = 'wangwu';
+INSERT INTO sys_user_role (user_id, role_id)
+SELECT u.id, r.id FROM sys_user u JOIN sys_role r ON r.role_key = 'director' WHERE u.username = 'director_li';
+
+INSERT INTO sys_user_role (user_id, role_id)
+SELECT u.id, r.id FROM sys_user u JOIN sys_role r ON r.role_key = 'common' WHERE u.username = 'wangwu';
