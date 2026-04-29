@@ -7,10 +7,18 @@
 -- 若 admin 在库 A，你却 USE smart_manager_db / 连错库，三人会被插进库 B，查询库 A 仍只有 admin。
 -- 在客户端先执行 SELECT DATABASE(); 或与 Railway Variables 里 MYSQLDATABASE / DB_NAME 对齐后再跑本脚本。
 
--- 插入角色定义
-INSERT IGNORE INTO sys_role (id, role_name, role_key, role_sort, data_scope, indicator_sensitive, status) VALUES
-(3, '院长', 'president', 3, '1', 1, 1),
-(4, '科室主任', 'director', 4, '3', 0, 1);
+-- 插入角色定义（按 role_key 幂等，避免线上 id 与本地不一致导致 IGNORE 跳过）
+INSERT INTO sys_role (role_name, role_key, role_sort, data_scope, indicator_sensitive, status, del_flag)
+VALUES
+  ('院长', 'president', 3, '1', 1, 1, 0),
+  ('科室主任', 'director', 4, '3', 0, 1, 0)
+ON DUPLICATE KEY UPDATE
+  role_name = VALUES(role_name),
+  role_sort = VALUES(role_sort),
+  data_scope = VALUES(data_scope),
+  indicator_sensitive = VALUES(indicator_sensitive),
+  status = VALUES(status),
+  del_flag = VALUES(del_flag);
 
 -- 如果不存在则插入用户, 若已存在则重置密码
 INSERT INTO sys_user (username, password, real_name, dept_id, status)
