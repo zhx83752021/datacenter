@@ -36,11 +36,16 @@ DELETE ur FROM sys_user_role ur
 INNER JOIN sys_user u ON u.id = ur.user_id
 WHERE u.username IN ('president', 'director_li', 'wangwu');
 
--- === 块 D4：一条 INSERT 写三行（子查询为 NULL 会报错，便于发现角色/用户缺失）===
-INSERT INTO sys_user_role (user_id, role_id) VALUES
-((SELECT id FROM sys_user WHERE username = 'president' LIMIT 1), (SELECT id FROM sys_role WHERE role_key = 'president' LIMIT 1)),
-((SELECT id FROM sys_user WHERE username = 'director_li' LIMIT 1), (SELECT id FROM sys_role WHERE role_key = 'director' LIMIT 1)),
-((SELECT id FROM sys_user WHERE username = 'wangwu' LIMIT 1), (SELECT id FROM sys_role WHERE role_key = 'common' LIMIT 1));
+-- === 块 D4：写入三行绑定（必须用 INSERT…SELECT，勿用 VALUES：Railway 会给整句自动加
+--     LIMIT 100；MySQL 不允许 INSERT…VALUES…LIMIT，会报 1064）===
+INSERT INTO sys_user_role (user_id, role_id)
+SELECT u.id, r.id FROM sys_user u JOIN sys_role r ON r.role_key = 'president' WHERE u.username = 'president';
+
+INSERT INTO sys_user_role (user_id, role_id)
+SELECT u.id, r.id FROM sys_user u JOIN sys_role r ON r.role_key = 'director' WHERE u.username = 'director_li';
+
+INSERT INTO sys_user_role (user_id, role_id)
+SELECT u.id, r.id FROM sys_user u JOIN sys_role r ON r.role_key = 'common' WHERE u.username = 'wangwu';
 
 -- === 块 D5：校验（应 3 行）===
 SELECT u.username, r.role_key, r.del_flag, r.status
