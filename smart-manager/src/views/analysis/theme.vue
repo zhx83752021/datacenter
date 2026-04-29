@@ -58,8 +58,8 @@
                     <div class="divider"></div>
                     <div class="f-group">
                         <span class="label">对比维度:</span>
-                        <el-select v-model="compareDim" placeholder="选择维度" size="small" class="glass-select"
-                            style="width: 120px">
+                        <el-select v-model="compareDim" placeholder="选择维度" size="small"
+                            class="glass-select theme-compare-select">
                             <el-option label="科室环比" value="dept" />
                             <el-option label="去年同比" value="yoy" />
                             <el-option label="目标差距" value="target" />
@@ -78,8 +78,8 @@
                             </el-icon></div>
                         <div class="card-content">
                             <div class="h-row">
-                                <span class="h-title">AI 智能洞察</span>
-                                <el-tag size="small" effect="dark" type="success" round>Run: 0.4s</el-tag>
+                                <span class="h-title">智能洞察</span>
+                                <el-tag size="small" effect="dark" type="success" round>耗时 0.4s</el-tag>
                             </div>
                             <p class="desc" v-html="aiInsight">
                             </p>
@@ -106,7 +106,7 @@
                     <div class="chart-row">
                         <div class="glass-panel chart-box medium">
                             <div class="c-header">
-                                <span class="title">科室排名 Top 10</span>
+                                <span class="title">科室排名前 10</span>
                             </div>
                             <div class="chart-content" ref="barChartRef"></div>
                         </div>
@@ -123,7 +123,7 @@
 
         <!-- 新建分析向导 -->
         <el-dialog v-model="createDialogVisible" title="新建运营主题分析" width="600px" append-to-body destroy-on-close
-            class="premium-dialog">
+            class="premium-dialog theme-analysis-dialog-responsive">
             <el-form :model="newAnalysisForm" :rules="newAnalysisRules" ref="createFormRef" label-position="top">
                 <el-form-item label="分析主题" prop="name">
                     <el-input v-model="newAnalysisForm.name" placeholder="输入分析报告名称，如：2024Q3耗材效率专项分析" />
@@ -151,12 +151,12 @@
                 </el-row>
                 <el-form-item label="分析思路说明">
                     <el-input v-model="newAnalysisForm.description" type="textarea" :rows="3"
-                        placeholder="简述本次分析的核心关注点（AI 将根据此描述生成专项洞察）" />
+                        placeholder="简述本次分析的核心关注点（系统将据此生成专项洞察）" />
                 </el-form-item>
             </el-form>
             <template #footer>
                 <div style="display: flex; justify-content: space-between; align-items: center; width: 100%">
-                    <span style="font-size: 12px; color: #94a3b8">预计生成耗时: 3s (含 AI 计算)</span>
+                    <span style="font-size: 12px; color: #94a3b8">预计生成耗时：约 3 秒</span>
                     <div style="display: flex; gap: 12px">
                         <el-button @click="createDialogVisible = false" round>取消</el-button>
                         <el-button type="primary" @click="submitNewAnalysis" round :loading="creating">立即生成</el-button>
@@ -277,7 +277,7 @@ const submitNewAnalysis = async () => {
                 import('element-plus').then(({ ElNotification }) => {
                     ElNotification({
                         title: '分析生成成功',
-                        message: `已基于您的需求生成了《${newAnalysisForm.value.name}》主题报告及 AI 深度洞察。`,
+                        message: `已基于您的需求生成了《${newAnalysisForm.value.name}》主题报告及智能洞察。`,
                         type: 'success',
                         duration: 5000
                     })
@@ -611,7 +611,8 @@ onMounted(() => {
     display: flex;
     flex-direction: column;
     padding-bottom: 20px;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 .header-section {
@@ -620,11 +621,14 @@ onMounted(() => {
     align-items: center;
     margin-bottom: 20px;
     flex-shrink: 0;
+    gap: 16px;
 
     .title-group {
         display: flex;
         gap: 12px;
         align-items: center;
+        min-width: 0;
+        flex: 1;
 
         .icon-box {
             width: 44px;
@@ -645,6 +649,7 @@ onMounted(() => {
                 font-size: 20px;
                 font-weight: 700;
                 color: #1e293b;
+                line-height: 1.3;
             }
 
             .sub {
@@ -666,7 +671,8 @@ onMounted(() => {
     display: flex;
     gap: 24px;
     min-height: 0;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: visible;
 }
 
 .theme-sidebar {
@@ -674,7 +680,8 @@ onMounted(() => {
     padding: 0;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    overflow: visible;
+    flex-shrink: 0;
 
     .sb-header {
         padding: 20px;
@@ -690,9 +697,9 @@ onMounted(() => {
     }
 
     .theme-list {
-        flex: 1;
+        flex: 0 0 auto;
         padding: 12px;
-        overflow-y: auto;
+        overflow: visible;
 
         .theme-item {
             display: flex;
@@ -923,6 +930,11 @@ onMounted(() => {
     }
 }
 
+.theme-compare-select {
+    width: 120px;
+    max-width: 100%;
+}
+
 .animate-enter {
     animation: fadeIn 0.5s ease-out forwards;
     opacity: 0;
@@ -937,6 +949,150 @@ onMounted(() => {
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .analysis-container {
+        overflow: auto;
+        min-height: 0;
+        padding-bottom: 16px;
+    }
+
+    .header-section {
+        flex-direction: column;
+        align-items: stretch;
+        margin-bottom: 14px;
+
+        .title-group {
+            align-items: flex-start;
+
+            .text-col {
+                min-width: 0;
+
+                .main {
+                    font-size: clamp(14px, 4.2vw, 18px);
+                    font-weight: 700;
+                    line-height: 1.3;
+                    overflow-wrap: anywhere;
+                }
+            }
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            width: 100%;
+
+            :deep(.el-button) {
+                flex: 1;
+                min-width: 0;
+            }
+        }
+    }
+
+    .content-wrapper {
+        flex-direction: column;
+        gap: 14px;
+        overflow: visible;
+        min-height: auto;
+    }
+
+    .theme-sidebar {
+        width: 100%;
+    }
+
+    .theme-sidebar .theme-list {
+        overflow: visible;
+    }
+
+    .analysis-board {
+        min-height: 0;
+        width: 100%;
+    }
+
+    .filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        padding: 14px 16px;
+
+        .divider,
+        .spacer {
+            display: none;
+        }
+
+        .f-group {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+            width: 100%;
+
+            .label {
+                white-space: normal;
+                line-height: 1.4;
+            }
+
+            .glass-radio {
+                width: 100%;
+
+                :deep(.el-radio-group) {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 8px;
+                }
+            }
+        }
+
+        .theme-compare-select {
+            width: 100% !important;
+        }
+
+        .update-time {
+            width: 100%;
+            text-align: center;
+            font-size: 11px;
+        }
+    }
+
+    .charts-grid {
+        padding-right: 0;
+
+        .insight-card {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 14px;
+            padding: 16px;
+            margin-bottom: 16px;
+
+            .card-icon {
+                width: 44px;
+                height: 44px;
+            }
+        }
+
+        .chart-row {
+            flex-direction: column;
+            min-height: auto;
+            gap: 12px;
+
+            .chart-box {
+                flex: none !important;
+                width: 100%;
+                min-height: 260px;
+                padding: 16px;
+
+                .chart-content {
+                    min-height: 220px;
+                }
+            }
+        }
+    }
+
+    :deep(.theme-analysis-dialog-responsive.el-dialog) {
+        width: min(100vw - 32px, 600px) !important;
+        margin: 2vh auto !important;
     }
 }
 </style>

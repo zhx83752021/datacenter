@@ -1,0 +1,120 @@
+/* 系统管理 / 个人中心：弹窗、抽屉、顶栏、筛选条 — 窄屏统一（与 MOBILE_RESPONSIVE_PLAN 768 一致） */
+
+.sys-dialog-responsive.el-dialog {
+    width: min(600px, calc(100vw - 24px)) !important;
+    max-width: calc(100vw - 16px);
+    box-sizing: border-box;
+    margin: 12px auto !important;
+}
+
+.menu-dialog-responsive.el-dialog {
+    width: min(600px, calc(100vw - 24px)) !important;
+    max-width: calc(100vw - 16px);
+    box-sizing: border-box;
+    margin: 12px auto !important;
+}
+
+@media (max-width: 768px) {
+    /* 遮罩内垂直居中 + margin 会在上下露出半透明遮罩，看起来像「灰条」— 铺满视口并取消外边距 */
+    .el-overlay-dialog:has(.sys-dialog-responsive.el-dialog),
+    .el-overlay-dialog:has(.menu-dialog-responsive.el-dialog) {
+        align-items: stretch !important;
+        justify-content: center !important;
+        padding: 0 !important;
+        box-sizing: border-box;
+        min-height: 100dvh;
+    }
+
+    .sys-dialog-responsive.el-dialog,
+    .menu-dialog-responsive.el-dialog {
+        margin: 0 auto !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 100dvh;
+        max-height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        border-radius: 0;
+        box-sizing: border-box;
+    }
+
+    .sys-dialog-responsive.el-dialog .el-dialog__header,
+    .menu-dialog-responsive.el-dialog .el-dialog__header {
+        flex-shrink: 0;
+        padding-top: calc(12px + env(safe-area-inset-top, 0px));
+    }
+
+    .sys-dialog-responsive.el-dialog .el-dialog__body,
+    .menu-dialog-responsive.el-dialog .el-dialog__body {
+        padding: 12px 16px 8px;
+        flex: 1;
+        min-height: 0;
+        max-height: none !important;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .sys-dialog-responsive.el-dialog .el-dialog__footer,
+    .menu-dialog-responsive.el-dialog .el-dialog__footer {
+        flex-shrink: 0;
+        padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    }
+
+    .sys-dialog-footer {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: stretch;
+        gap: 10px;
+        width: 100%;
+
+        .el-button {
+            flex: 1;
+            min-width: 0;
+        }
+    }
+}
+
+.el-drawer.sys-drawer-responsive {
+    @media (max-width: 768px) {
+        width: calc(100vw - 16px) !important;
+    }
+}
+
+.sys-page-header {
+    @media (max-width: 768px) {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 12px !important;
+    }
+}
+
+.sys-toolbar {
+    @media (max-width: 768px) {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 12px !important;
+
+        .el-input,
+        .el-select,
+        .el-date-editor.el-range-editor {
+            width: 100% !important;
+            max-width: none !important;
+        }
+    }
+}
+
+.sys-tab-bar {
+    @media (max-width: 768px) {
+        width: 100%;
+        flex-wrap: wrap;
+        box-sizing: border-box;
+
+        .tab-item {
+            flex: 1 1 auto;
+            justify-content: center;
+            min-width: 0;
+            padding: 8px 12px;
+            font-size: 12px;
+        }
+    }
+}

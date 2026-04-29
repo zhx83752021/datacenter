@@ -2,174 +2,30 @@
   <el-container class="layout-container is-frontend" :class="{ 'is-embedded': isEmbedded }">
     <el-header v-if="!isEmbedded" class="top-header">
       <div class="header-inner">
-        <div class="logo">
-          <el-icon :size="28" color="#0dbda8">
-            <Monitor />
-          </el-icon>
-          <span class="title">智慧管理平台</span>
+        <div class="header-left-cluster">
+          <el-button
+            v-if="isMobile"
+            text
+            circle
+            class="mobile-menu-trigger"
+            aria-label="打开导航菜单"
+            @click="mobileNavOpen = true"
+          >
+            <el-icon :size="22">
+              <Menu />
+            </el-icon>
+          </el-button>
+
+          <div class="logo">
+            <el-icon :size="28" color="#0dbda8">
+              <Monitor />
+            </el-icon>
+            <span class="title">智慧管理平台</span>
+          </div>
         </div>
 
-        <div class="nav-menu">
-          <el-menu :default-active="activeMenu" mode="horizontal" router class="el-menu-horizontal" :ellipsis="false">
-            <!-- ========== 全院指标监控（含子菜单） ========== -->
-            <el-sub-menu v-if="isAdmin || isPresident || isDirector" index="monitor-group">
-              <template #title>
-                <el-icon>
-                  <TrendCharts />
-                </el-icon>
-                <span>全院指标监控</span>
-              </template>
-              <el-menu-item index="/monitor">
-                <el-icon>
-                  <TrendCharts />
-                </el-icon>指标监测总览
-              </el-menu-item>
-              <el-menu-item index="/monitor/lib">
-                <el-icon>
-                  <Collection />
-                </el-icon>指标知识库
-              </el-menu-item>
-              <el-menu-item index="/monitor/graph">
-                <el-icon>
-                  <Share />
-                </el-icon>指标关联图谱
-              </el-menu-item>
-              <el-menu-item index="/monitor/target">
-                <el-icon>
-                  <Aim />
-                </el-icon>目标与预警
-              </el-menu-item>
-              <el-menu-item index="/monitor/feedback">
-                <el-icon>
-                  <ChatLineSquare />
-                </el-icon>数据反馈管理
-              </el-menu-item>
-              <el-menu-item index="/monitor/report">
-                <el-icon>
-                  <Promotion />
-                </el-icon>智能报告分发
-              </el-menu-item>
-            </el-sub-menu>
-
-            <!-- ========== 运营决策门户（无子级） ========== -->
-            <el-menu-item v-if="isAdmin || isPresident || isDirector" index="/portal">
-              <template #title>
-                <el-icon>
-                  <DataBoard />
-                </el-icon>
-                <span>运营决策门户</span>
-              </template>
-            </el-menu-item>
-
-            <!-- ========== 决策驾驶舱（院长/科主任分流） ========== -->
-            <el-menu-item v-if="isAdmin || isPresident" index="/cockpit">
-              <template #title>
-                <el-icon>
-                  <Aim />
-                </el-icon>
-                <span>决策驾驶舱</span>
-              </template>
-            </el-menu-item>
-            <el-menu-item v-if="isDirector" index="/cockpit/dept">
-              <template #title>
-                <el-icon>
-                  <Aim />
-                </el-icon>
-                <span>科室驾驶舱</span>
-              </template>
-            </el-menu-item>
-
-            <!-- ========== 数据分析报表（含子菜单） ========== -->
-            <el-sub-menu index="report-group">
-              <template #title>
-                <el-icon>
-                  <Document />
-                </el-icon>
-                <span>数据分析报表</span>
-              </template>
-              <el-menu-item index="/reports">
-                <el-icon>
-                  <Document />
-                </el-icon>基础报表中心
-              </el-menu-item>
-
-              <el-menu-item index="/analysis/theme">
-                <el-icon>
-                  <DataAnalysis />
-                </el-icon>运营主题分析
-              </el-menu-item>
-            </el-sub-menu>
-
-            <!-- ========== 医疗业务（含子菜单） ========== -->
-            <el-sub-menu index="medical-group">
-              <template #title>
-                <el-icon>
-                  <UserFilled />
-                </el-icon>
-                <span>医疗业务</span>
-              </template>
-              <el-menu-item index="/medical/patient360">
-                <el-icon>
-                  <UserFilled />
-                </el-icon>患者360视图
-              </el-menu-item>
-              <el-menu-item index="/medical/ai-diagnosis">
-                <el-icon>
-                  <MagicStick />
-                </el-icon>智能辅助诊疗
-              </el-menu-item>
-            </el-sub-menu>
-
-            <!-- ========== 看板管理（单页面） ========== -->
-            <el-menu-item v-if="isAdmin || isPresident" index="/dashboard/list">
-              <template #title>
-                <el-icon>
-                  <Monitor />
-                </el-icon>
-                <span>看板管理</span>
-              </template>
-            </el-menu-item>
-
-            <!-- ========== 系统管理（含子菜单，仅管理员） ========== -->
-            <el-sub-menu v-if="isAdmin" index="system-group">
-              <template #title>
-                <el-icon>
-                  <Setting />
-                </el-icon>
-                <span>系统管理</span>
-              </template>
-              <el-menu-item index="/system/user">
-                <el-icon>
-                  <User />
-                </el-icon>用户管理
-              </el-menu-item>
-              <el-menu-item index="/system/role">
-                <el-icon>
-                  <Stamp />
-                </el-icon>角色管理
-              </el-menu-item>
-              <el-menu-item index="/system/menu">
-                <el-icon>
-                  <Menu />
-                </el-icon>菜单管理
-              </el-menu-item>
-              <el-menu-item index="/system/log">
-                <el-icon>
-                  <Tickets />
-                </el-icon>日志管理
-              </el-menu-item>
-              <el-menu-item index="/system/config">
-                <el-icon>
-                  <Setting />
-                </el-icon>参数配置
-              </el-menu-item>
-              <el-menu-item index="/system/dict">
-                <el-icon>
-                  <Notebook />
-                </el-icon>字典管理
-              </el-menu-item>
-            </el-sub-menu>
-          </el-menu>
+        <div v-if="!isMobile" class="nav-menu">
+          <MainNavMenu mode="horizontal" />
         </div>
 
         <div class="header-right">
@@ -188,7 +44,8 @@
               :src="userStore.avatar || 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png'" />
             <el-dropdown>
               <span class="el-dropdown-link">
-                {{ userStore.name || 'Admin' }} <el-icon class="el-icon--right"><arrow-down /></el-icon>
+                <span class="user-name-text">{{ userStore.name || 'Admin' }}</span>
+                <el-icon class="el-icon--right"><arrow-down /></el-icon>
               </span>
               <template #dropdown>
                 <el-dropdown-menu>
@@ -202,8 +59,20 @@
       </div>
     </el-header>
 
+    <el-drawer
+      v-if="isMobile"
+      v-model="mobileNavOpen"
+      direction="ltr"
+      size="86%"
+      class="mobile-nav-drawer"
+      title="导航菜单"
+      append-to-body
+    >
+      <MainNavMenu mode="vertical" @menu-select="mobileNavOpen = false" />
+    </el-drawer>
+
     <el-main class="main-content">
-      <div class="content-wrapper" :class="{ 'is-embedded': isEmbedded }">
+      <div class="content-wrapper" :class="{ 'is-embedded': isEmbedded, 'is-mobile': isMobile }">
         <router-view v-slot="{ Component }">
           <transition name="fade-slide" mode="out-in">
             <component :is="Component" />
@@ -220,25 +89,21 @@
 
 <script setup lang="ts">
 import {
-  Monitor, TrendCharts, DataBoard, Aim, Document, Sunny, Moon, UserFilled, Setting,
-  Collection, Share, ChatLineSquare, Promotion, DataAnalysis, MagicStick,
-  User, Stamp, Menu, Tickets, Notebook, ArrowDown
+  Monitor, Sunny, Moon, ArrowDown, Menu
 } from '@element-plus/icons-vue'
-import { computed, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useBreakpoint } from '../composables/useBreakpoint'
 import { useTheme } from '../composables/useTheme'
 import { useUserStore } from '../stores/user'
+import MainNavMenu from './MainNavMenu.vue'
 
 const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
-const activeMenu = computed(() => route.path)
+const { isMobile } = useBreakpoint()
 const isEmbedded = computed(() => route.query.embedded === 'true')
-
-// 权限控制角色计算
-const isAdmin = computed(() => userStore.roles.includes('admin') || userStore.roles.includes('ROLE_ADMIN'))
-const isPresident = computed(() => userStore.roles.includes('president') || userStore.roles.includes('ROLE_PRESIDENT'))
-const isDirector = computed(() => userStore.roles.includes('director') || userStore.roles.includes('ROLE_DIRECTOR'))
+const mobileNavOpen = ref(false)
 
 // 退出登录
 const handleLogout = async () => {
@@ -267,12 +132,20 @@ const trackVisit = (r: any) => {
 
 watch(() => route.path, () => {
   trackVisit(route)
+  mobileNavOpen.value = false
 }, { immediate: true })
+
+watch(isMobile, (m) => {
+  if (!m) mobileNavOpen.value = false
+})
 </script>
 
 <style scoped lang="scss">
 .layout-container {
+  min-height: 100vh;
+  min-height: 100dvh;
   height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -280,6 +153,7 @@ watch(() => route.path, () => {
   &.is-embedded {
     background: #fff;
     height: auto;
+    min-height: auto;
     overflow: auto;
   }
 
@@ -300,6 +174,28 @@ watch(() => route.path, () => {
       align-items: center;
       justify-content: space-between;
       padding: 0 24px;
+      gap: 12px;
+      min-width: 0;
+
+      .header-left-cluster {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        min-width: 0;
+        flex-shrink: 0;
+      }
+
+      .mobile-menu-trigger {
+        flex-shrink: 0;
+        color: #fff !important;
+        min-width: 44px;
+        min-height: 44px;
+        padding: 0;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.08) !important;
+        }
+      }
 
       .logo {
         display: flex;
@@ -309,10 +205,17 @@ watch(() => route.path, () => {
         font-weight: 700;
         color: #fff;
         letter-spacing: 0.5px;
-        min-width: 200px;
+        min-width: 0;
+
+        .title {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
 
         .el-icon {
           font-size: 28px;
+          flex-shrink: 0;
           color: var(--primary-color);
           filter: drop-shadow(0 0 8px rgba(13, 189, 168, 0.4));
         }
@@ -323,82 +226,16 @@ watch(() => route.path, () => {
         display: flex;
         justify-content: center;
         height: 100%;
-
-        .el-menu-horizontal {
-          border-bottom: none;
-          height: 100%;
-          background: transparent;
-
-          :deep(.el-menu-item) {
-            height: 100%;
-            color: rgba(255, 255, 255, 0.75);
-            font-size: 15px;
-            font-weight: 500;
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s ease;
-
-            .el-icon {
-              margin-right: 6px;
-            }
-
-            &:hover {
-              background: transparent;
-              color: #fff;
-            }
-
-            &.is-active {
-              color: var(--primary-color) !important;
-              border-bottom-color: var(--primary-color);
-              background: linear-gradient(to top, rgba(13, 189, 168, 0.15), transparent);
-              font-weight: 600;
-            }
-          }
-
-          :deep(.el-sub-menu) {
-            height: 100%;
-
-            .el-sub-menu__title {
-              height: 100% !important;
-              line-height: 64px;
-              color: rgba(255, 255, 255, 0.75);
-              font-size: 15px;
-              font-weight: 500;
-              border-bottom: 3px solid transparent;
-              transition: all 0.3s ease;
-
-              .el-icon {
-                margin-right: 6px;
-                color: inherit;
-              }
-
-              .el-sub-menu__icon-arrow {
-                color: rgba(255, 255, 255, 0.5);
-              }
-
-              &:hover {
-                background: transparent !important;
-                color: #fff;
-              }
-            }
-
-            &.is-active {
-              .el-sub-menu__title {
-                color: var(--primary-color) !important;
-                border-bottom-color: var(--primary-color);
-                background: linear-gradient(to top, rgba(13, 189, 168, 0.15), transparent) !important;
-                font-weight: 600;
-              }
-            }
-          }
-        }
+        min-width: 0;
       }
 
       .header-right {
-        min-width: 200px;
+        min-width: 0;
         display: flex;
         align-items: center;
         justify-content: flex-end;
         gap: 16px;
+        flex-shrink: 0;
 
         .theme-toggle-btn {
           background: rgba(255, 255, 255, 0.1);
@@ -420,6 +257,7 @@ watch(() => route.path, () => {
           gap: 10px;
           cursor: pointer;
           transition: opacity 0.3s;
+          min-width: 0;
 
           &:hover {
             opacity: 0.8;
@@ -430,10 +268,35 @@ watch(() => route.path, () => {
             color: rgba(255, 255, 255, 0.9);
             display: flex;
             align-items: center;
+            max-width: 140px;
+          }
+
+          .user-name-text {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
           }
         }
       }
     }
+  }
+
+  @media (max-width: 768px) {
+    .top-header .header-inner {
+      padding: 0 12px;
+
+      .logo {
+        font-size: 16px;
+        gap: 8px;
+      }
+    }
+  }
+
+  /* 移动端抽屉导航：限制内边距，避免菜单区域产生横向滚动条 */
+  :deep(.mobile-nav-drawer .el-drawer__body) {
+    padding: 8px 10px 16px;
+    overflow-x: hidden;
+    box-sizing: border-box;
   }
 
   .main-content {
@@ -443,6 +306,7 @@ watch(() => route.path, () => {
     flex-direction: column;
     overflow-y: auto;
     overflow-x: hidden;
+    min-height: 0;
 
     &.is-embedded {
       background: transparent !important;
@@ -460,13 +324,21 @@ watch(() => route.path, () => {
         margin: 0;
         padding: 0;
         min-height: 100vh;
+        min-height: 100dvh;
         background: #fff;
+      }
+
+      &.is-mobile {
+        margin-top: 12px;
+        padding: 0 12px 16px;
       }
     }
   }
 
   .footer {
-    height: 60px;
+    height: auto;
+    min-height: 48px;
+    padding: 12px 16px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -475,6 +347,11 @@ watch(() => route.path, () => {
     color: var(--text-secondary);
     font-size: 13px;
     margin-top: auto;
+    text-align: center;
+
+    .copyright {
+      line-height: 1.4;
+    }
   }
 }
 </style>

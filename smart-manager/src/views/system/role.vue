@@ -1,7 +1,7 @@
 <template>
     <div class="role-manage-container animate-enter">
         <div class="glass-panel main-panel">
-            <div class="panel-header">
+            <div class="panel-header sys-page-header">
                 <div class="title-section">
                     <div class="icon-box">
                         <el-icon>
@@ -9,13 +9,13 @@
                         </el-icon>
                     </div>
                     <span class="title">角色与权限</span>
-                    <span class="subtitle">Role & Permission Control</span>
                 </div>
                 <div class="actions">
                     <el-button type="primary" icon="Plus" round class="glow-btn" @click="handleCreate">新建角色</el-button>
                 </div>
             </div>
 
+            <div class="role-table-wrap table-responsive table-responsive--grow">
             <el-table :data="tableData" class="premium-table" height="100%">
                 <el-table-column prop="name" label="角色名称" width="200">
                     <template #default="{ row }">
@@ -47,11 +47,12 @@
                     </template>
                 </el-table-column>
             </el-table>
+            </div>
         </div>
 
         <!-- Edit/Create Dialog -->
         <el-dialog v-model="dialogVisible" :title="dialogType === 'add' ? '新建角色' : '编辑角色'" width="500px"
-            class="glass-dialog">
+            class="glass-dialog sys-dialog-responsive">
             <el-form label-position="top" :model="form">
                 <el-form-item label="角色名称" required>
                     <el-input v-model="form.name" placeholder="如：医疗总监" class="glass-input" />
@@ -67,13 +68,16 @@
                 </el-form-item>
             </el-form>
             <template #footer>
-                <el-button @click="dialogVisible = false">取消</el-button>
-                <el-button type="primary" @click="dialogVisible = false">保存</el-button>
+                <div class="sys-dialog-footer">
+                    <el-button @click="dialogVisible = false">取消</el-button>
+                    <el-button type="primary" @click="dialogVisible = false">保存</el-button>
+                </div>
             </template>
         </el-dialog>
 
         <!-- Permission Drawer -->
-        <el-drawer v-model="permDrawerVisible" title="权限配置" size="400px" direction="rtl">
+        <el-drawer v-model="permDrawerVisible" title="权限配置" size="400px" direction="rtl" class="sys-drawer-responsive"
+            append-to-body>
             <div class="drawer-content">
                 <h4 class="section-title">菜单权限</h4>
                 <div class="tree-box custom-scrollbar">
@@ -96,7 +100,7 @@
                     <div class="tip-text small mt-1">开启后可查看标记为“敏感”的财务及核心绩效指标</div>
                 </div>
 
-                <div class="drawer-footer">
+                <div class="drawer-footer sys-dialog-footer">
                     <el-button @click="permDrawerVisible = false">取消</el-button>
                     <el-button type="primary" @click="savePerms">保存配置</el-button>
                 </div>
@@ -205,19 +209,15 @@ const savePerms = () => {
                 font-weight: 700;
                 color: #1e293b;
             }
-
-            .subtitle {
-                font-size: 12px;
-                color: #94a3b8;
-                font-family: 'JetBrains Mono';
-                margin-top: 4px;
-            }
         }
     }
 
-    .premium-table {
-        flex: 1;
+    .role-table-wrap {
+        width: 100%;
+        min-height: 0;
+    }
 
+    .premium-table {
         :deep(th.el-table__cell) {
             background: #f8fafc;
             color: #64748b;

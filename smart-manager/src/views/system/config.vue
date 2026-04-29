@@ -2,7 +2,7 @@
     <div class="config-container animate-enter">
         <div class="glass-panel main-panel">
             <!-- 头部 -->
-            <div class="panel-header">
+            <div class="panel-header sys-page-header">
                 <div class="title-with-icon">
                     <div class="icon-box">
                         <el-icon :size="20">
@@ -18,7 +18,7 @@
             </div>
 
             <!-- 搜索筛选栏 -->
-            <div class="filter-row">
+            <div class="filter-row sys-toolbar">
                 <el-input v-model="searchKey" placeholder="搜索参数名称/键名..." prefix-icon="Search" class="glass-input"
                     style="width: 280px" clearable />
                 <el-select v-model="typeFilter" placeholder="参数类型" class="glass-select" style="width: 140px" clearable>
@@ -27,8 +27,8 @@
                 </el-select>
             </div>
 
-            <!-- 参数列表 -->
-            <div class="table-wrapper">
+            <!-- 桌面 sys-table-shell；窄屏关 fixed 后用 table-responsive 横向滚动 -->
+            <div class="table-wrapper" :class="tableShellClass">
                 <el-table :data="filteredData" class="premium-table" style="width: 100%" height="calc(100vh - 320px)">
                     <el-table-column prop="configId" label="参数编号" width="80" align="center" />
                     <el-table-column prop="configName" label="参数名称" min-width="200">
@@ -57,7 +57,7 @@
                         </template>
                     </el-table-column>
                     <el-table-column prop="remark" label="备注" min-width="160" show-overflow-tooltip />
-                    <el-table-column label="操作" width="140" align="center" fixed="right">
+                    <el-table-column label="操作" width="140" align="center" :fixed="fixedRight">
                         <template #default="{ row }">
                             <el-button link type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
                             <el-button link type="danger" size="small" @click="handleDelete(row)"
@@ -75,7 +75,8 @@
         </div>
 
         <!-- 编辑对话框 -->
-        <el-dialog v-model="dialogVisible" :title="dialogTitle" width="520px" class="glass-dialog" align-center>
+        <el-dialog v-model="dialogVisible" :title="dialogTitle" width="520px" align-center
+            class="glass-dialog sys-dialog-responsive">
             <el-form :model="formData" label-position="top" class="custom-form">
                 <el-form-item label="参数名称" required>
                     <el-input v-model="formData.configName" placeholder="请输入参数名称" />
@@ -87,7 +88,7 @@
                     <el-input v-model="formData.configValue" placeholder="请输入参数键值" />
                 </el-form-item>
                 <el-row :gutter="20">
-                    <el-col :span="12">
+                    <el-col :span="12" :xs="24">
                         <el-form-item label="参数类型">
                             <el-radio-group v-model="formData.configType">
                                 <el-radio label="Y" border>系统内置</el-radio>
@@ -102,10 +103,10 @@
                 </el-form-item>
             </el-form>
             <template #footer>
-                <span class="dialog-footer">
+                <div class="dialog-footer sys-dialog-footer">
                     <el-button @click="dialogVisible = false">取消</el-button>
                     <el-button type="primary" @click="handleSave">保存</el-button>
-                </span>
+                </div>
             </template>
         </el-dialog>
     </div>
@@ -115,6 +116,9 @@
 import { ref, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Setting, Plus, Refresh, Search } from '@element-plus/icons-vue'
+import { useTableFixedColumns } from '@/composables/useTableFixedColumns'
+
+const { fixedRight, tableShellClass } = useTableFixedColumns()
 
 const searchKey = ref('')
 const typeFilter = ref('')
@@ -263,7 +267,11 @@ const handleRefreshCache = () => {
 
 .table-wrapper {
     flex: 1;
-    overflow: hidden;
+    min-height: 0;
+    min-width: 0;
+    /* 与全局 .sys-table-shell 一致：勿外层 overflow-x:auto，避免裁切 fixed 列 */
+    overflow-x: visible;
+    overflow-y: hidden;
 }
 
 .premium-table {
@@ -331,6 +339,14 @@ const handleRefreshCache = () => {
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+/* 窄屏关 fixed 后，覆盖 .table-wrapper 的 overflow-x:visible，与 table-responsive 一致 */
+@media (max-width: 768px) {
+    .table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
 }
 </style>

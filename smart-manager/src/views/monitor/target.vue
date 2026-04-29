@@ -20,14 +20,14 @@
                 </div>
             </div>
 
-            <div class="filter-bar glass-inner">
-                <el-form :inline="true" :model="filters" class="premium-form">
+            <div class="filter-bar glass-inner target-filter-bar">
+                <el-form :inline="true" :model="filters" class="premium-form target-filter-form">
                     <el-form-item label="考核年度">
-                        <el-date-picker v-model="filters.year" type="year" placeholder="选择年份" style="width: 120px"
+                        <el-date-picker v-model="filters.year" type="year" placeholder="选择年份" class="target-filter-year"
                             :clearable="false" />
                     </el-form-item>
                     <el-form-item label="指标名称">
-                        <el-select v-model="filters.indicator" placeholder="请选择指标" style="width: 220px">
+                        <el-select v-model="filters.indicator" placeholder="请选择指标" class="target-filter-indicator">
                             <el-option label="门急诊总人次" value="1" />
                             <el-option label="医疗总收入" value="2" />
                             <el-option label="四级手术率" value="3" />
@@ -46,8 +46,10 @@
                 <span>提示：目标值设定后将作为全院监控及绩效考核的基准，请谨慎修改。</span>
             </div>
 
-            <el-table :data="tableData" class="premium-table" style="width: 100%" height="calc(100vh - 300px)">
-                <el-table-column prop="deptName" label="考核科室" width="160" fixed>
+            <!-- 移动端关闭 fixed：窄屏固定列占宽且 shadows 叠层；桌面保留左右固定便于览表 -->
+            <div class="target-table-shell" :class="tableShellClass">
+            <el-table :data="tableData" class="premium-table" style="width: 100%" height="100%">
+                <el-table-column prop="deptName" label="考核科室" width="160" :fixed="fixedLeft">
                     <template #default="{ row }"><span class="fw-bold">{{ row.deptName }}</span></template>
                 </el-table-column>
                 <el-table-column label="历史参考值 (去年同期)" width="180" align="right">
@@ -99,7 +101,7 @@
                         </div>
                     </template>
                 </el-table-column>
-                <el-table-column label="操作" width="100" fixed="right" align="center">
+                <el-table-column label="操作" width="100" :fixed="fixedRight" align="center">
                     <template #default="{ row }">
                         <el-button link type="primary" @click="handleTrend(row)"><el-icon>
                                 <TrendCharts />
@@ -107,6 +109,7 @@
                     </template>
                 </el-table-column>
             </el-table>
+            </div>
         </div>
 
         <!-- Push Config Dialog -->
@@ -182,6 +185,9 @@
 import { ref, reactive } from 'vue'
 import { ElMessage, ElLoading } from 'element-plus'
 import { Aim, Upload, Checked, Bell, Search, InfoFilled, QuestionFilled, TrendCharts, UploadFilled, Download } from '@element-plus/icons-vue'
+import { useTableFixedColumns } from '@/composables/useTableFixedColumns'
+
+const { fixedLeft, fixedRight, tableShellClass } = useTableFixedColumns()
 
 const filters = reactive({ year: '2024', indicator: '1' })
 const pushConfigVisible = ref(false)
@@ -262,6 +268,13 @@ const handleUploadSuccess = (file: any) => {
         &:hover {
             border-color: rgba(13, 189, 168, 0.3);
         }
+    }
+
+    .target-table-shell {
+        flex: 1;
+        min-height: 0;
+        min-width: 0;
+        width: 100%;
     }
 
     .panel-header {
@@ -429,6 +442,64 @@ const handleUploadSuccess = (file: any) => {
 
     .mr-2 {
         margin-right: 8px;
+    }
+
+    .target-filter-year {
+        width: 120px;
+        max-width: 100%;
+    }
+
+    .target-filter-indicator {
+        width: 220px;
+        max-width: 100%;
+    }
+
+    @media (max-width: 768px) {
+        .panel-header {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 14px;
+
+            .actions {
+                flex-wrap: wrap;
+                justify-content: flex-end;
+            }
+        }
+
+        .glass-panel {
+            padding: 16px;
+        }
+
+        .filter-bar {
+            padding: 12px 14px;
+
+            .target-filter-form {
+                :deep(.el-form-item) {
+                    margin-right: 0;
+                    margin-bottom: 12px;
+                    display: block;
+
+                    &:last-child {
+                        margin-bottom: 0;
+                    }
+                }
+            }
+        }
+
+        .target-filter-year,
+        .target-filter-indicator {
+            width: 100% !important;
+        }
+
+        .info-alert {
+            align-items: flex-start;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .target-table-shell {
+            min-height: 320px;
+        }
     }
 
     @keyframes fadeInUp {

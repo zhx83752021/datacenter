@@ -2,7 +2,7 @@
     <div class="profile-container animate-enter">
         <div class="glass-panel profile-card">
             <div class="profile-bg"></div>
-            <div class="profile-header">
+            <div class="profile-header sys-page-header">
                 <div class="avatar-wrapper">
                     <el-avatar :size="100" src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
                         class="profile-avatar" />
@@ -29,10 +29,10 @@
 
             <div class="profile-body">
                 <el-row :gutter="24">
-                    <el-col :span="16">
+                    <el-col :span="16" :xs="24">
                         <div class="section-box">
                             <h3 class="section-title">基本信息</h3>
-                            <el-descriptions :column="2" border>
+                            <el-descriptions :column="descColumns" border>
                                 <el-descriptions-item label="真实姓名">{{ userStore.realName }}</el-descriptions-item>
                                 <el-descriptions-item label="登录账号">{{ userStore.username }}</el-descriptions-item>
                                 <el-descriptions-item label="工号">{{ userStore.empNo || '无' }}</el-descriptions-item>
@@ -62,7 +62,7 @@
                         </div>
                     </el-col>
 
-                    <el-col :span="8">
+                    <el-col :span="8" :xs="24">
                         <div class="section-box h-full">
                             <h3 class="section-title">安全设置</h3>
                             <div class="security-list">
@@ -109,7 +109,8 @@
         </div>
 
         <!-- 修改密码弹窗 -->
-        <el-dialog v-model="showPassModal" title="修改登录密码" width="400px" align-center>
+        <el-dialog v-model="showPassModal" title="修改登录密码" width="400px" align-center
+            class="sys-dialog-responsive">
             <el-form label-position="top">
                 <el-form-item label="当前密码" required>
                     <el-input v-model="passForm.oldPassword" type="password" show-password />
@@ -122,13 +123,15 @@
                 </el-form-item>
             </el-form>
             <template #footer>
-                <el-button @click="showPassModal = false">取消</el-button>
-                <el-button type="primary" @click="savePassword">提交修改</el-button>
+                <div class="sys-dialog-footer">
+                    <el-button @click="showPassModal = false">取消</el-button>
+                    <el-button type="primary" @click="savePassword">提交修改</el-button>
+                </div>
             </template>
         </el-dialog>
 
         <!-- 编辑资料弹窗 -->
-        <el-dialog v-model="showEditModal" title="编辑基本资料" width="500px" align-center>
+        <el-dialog v-model="showEditModal" title="编辑基本资料" width="500px" align-center class="sys-dialog-responsive">
             <el-form :model="profileForm" label-position="top">
                 <el-form-item label="真实姓名">
                     <el-input v-model="profileForm.realName" />
@@ -141,19 +144,26 @@
                 </el-form-item>
             </el-form>
             <template #footer>
-                <el-button @click="showEditModal = false">取消</el-button>
-                <el-button type="primary" @click="saveProfile">保存修改</el-button>
+                <div class="sys-dialog-footer">
+                    <el-button @click="showEditModal = false">取消</el-button>
+                    <el-button type="primary" @click="saveProfile">保存修改</el-button>
+                </div>
             </template>
         </el-dialog>
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Camera, Location, Calendar, Monitor, Lock, DataAnalysis, Key } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
 import { updateProfile, updatePassword } from '@/api/user'
+import { useBreakpoint } from '@/composables/useBreakpoint'
+
+const { isMobile } = useBreakpoint()
+
+const descColumns = computed(() => (isMobile.value ? 1 : 2))
 
 const userStore = useUserStore()
 const showPassModal = ref(false)
@@ -423,6 +433,41 @@ onMounted(async () => {
 
 .ml-4 {
     margin-left: 16px;
+}
+
+@media (max-width: 768px) {
+    .profile-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        padding: 0 16px 24px;
+        gap: 16px;
+
+        .header-actions {
+            width: 100%;
+
+            .el-button {
+                width: 100%;
+            }
+        }
+
+        .user-info .u-meta {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 6px;
+
+            .ml-4 {
+                margin-left: 0;
+            }
+        }
+    }
+
+    .profile-body {
+        padding: 16px;
+    }
+
+    .perms-list {
+        grid-template-columns: 1fr;
+    }
 }
 
 .h-full {

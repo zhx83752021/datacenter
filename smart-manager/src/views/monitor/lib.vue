@@ -24,8 +24,8 @@
 
         <!-- Main Board -->
         <div class="main-board animate-enter" style="animation-delay: 0.1s">
-            <!-- Left: Category Tree -->
-            <div class="left-panel glass-panel">
+            <!-- Left: Category Tree（桌面端侧栏；移动端改为抽屉，避免挤压表格） -->
+            <div v-if="!isMobile" class="left-panel glass-panel">
                 <div class="panel-header">
                     <span>指标分类</span>
                     <el-button link type="primary" size="small"><el-icon>
@@ -58,16 +58,25 @@
 
             <!-- Right: Content -->
             <div class="right-panel">
+                <!-- 移动端：打开分类抽屉 -->
+                <div v-if="isMobile" class="category-mobile-bar glass-panel">
+                    <el-button type="primary" plain round class="category-mobile-bar__btn" @click="categoryDrawerOpen = true">
+                        <el-icon class="mr-1"><Menu /></el-icon>
+                        指标分类
+                    </el-button>
+                    <span class="category-mobile-bar__hint">{{ currentCategoryLabel }}</span>
+                </div>
+
                 <div class="filter-bar glass-panel">
                     <div class="inputs">
                         <el-input v-model="searchQuery" placeholder="输入指标名称/编码..." prefix-icon="Search"
-                            style="width: 240px; border-radius: 20px;" class="glass-input" />
-                        <el-select v-model="statusFilter" placeholder="状态" style="width: 120px" class="glass-select">
+                            class="glass-input lib-filter-search" />
+                        <el-select v-model="statusFilter" placeholder="状态" class="glass-select lib-filter-select">
                             <el-option label="全部" value="" />
                             <el-option label="启用" value="active" />
                             <el-option label="停用" value="inactive" />
                         </el-select>
-                        <el-select v-model="freqFilter" placeholder="频次" style="width: 120px" class="glass-select">
+                        <el-select v-model="freqFilter" placeholder="频次" class="glass-select lib-filter-select">
                             <el-option label="日报" value="daily" />
                             <el-option label="月报" value="monthly" />
                         </el-select>
@@ -81,7 +90,8 @@
                 </div>
 
                 <div class="list-container glass-panel">
-                    <el-table v-loading="loading" :data="tableData" style="width: 100%; height: 100%"
+                    <div class="lib-table-scroll table-responsive table-responsive--grow">
+                    <el-table v-loading="loading" :data="tableData" style="width: 100%; min-width: 720px; height: 100%"
                         class="premium-table">
                         <el-table-column type="selection" width="50" />
                         <el-table-column label="指标名称" min-width="240">
@@ -94,7 +104,7 @@
                                         <div class="name" style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
                                             {{ row.name }}
 
-                                            <el-tooltip effect="light" placement="right-start" :show-after="200" popper-class="glass-tooltip">
+                                            <el-tooltip effect="light" :placement="isMobile ? 'bottom' : 'right-start'" :show-after="200" popper-class="glass-tooltip">
                                               <template #content>
                                                 <div class="indicator-tooltip-content">
                                                   <div class="tt-header">
@@ -171,10 +181,15 @@
                             </template>
                         </el-table-column>
                     </el-table>
+                    </div>
                     <div class="pagination-bar">
                         <span class="total">共 {{ total }} 条数据</span>
                         <el-pagination v-model:current-page="queryParams.pageNum"
-                            v-model:page-size="queryParams.pageSize" layout="prev, pager, next" :total="total"
+                            v-model:page-size="queryParams.pageSize"
+                            layout="prev, pager, next"
+                            :small="isMobile"
+                            :pager-count="isMobile ? 5 : 7"
+                            :total="total"
                             @current-change="loadList" />
                     </div>
                 </div>
@@ -182,8 +197,44 @@
         </div>
     </div>
 
+    <!-- 移动端：分类树抽屉 -->
+    <el-drawer
+        v-if="isMobile"
+        v-model="categoryDrawerOpen"
+        title="指标分类"
+        direction="ltr"
+        :size="categoryDrawerPx"
+        append-to-body
+        class="lib-category-drawer"
+    >
+        <div class="lib-drawer-tree">
+            <div class="search-box lib-drawer-tree__search">
+                <el-input v-model="filterText" placeholder="搜索分类..." prefix-icon="Search" class="clean-input" />
+            </div>
+            <div class="tree-wrapper custom-scrollbar lib-drawer-tree__body">
+                <el-tree ref="treeRef" class="custom-tree" :data="treeData" :props="defaultProps" default-expand-all
+                    :filter-node-method="filterNode" highlight-current @node-click="handleNodeClick">
+                    <template #default="{ node, data }">
+                        <span class="custom-tree-node">
+                            <span class="node-icon">
+                                <el-icon v-if="data.children && data.children.length">
+                                    <Folder />
+                                </el-icon>
+                                <el-icon v-else>
+                                    <Document />
+                                </el-icon>
+                            </span>
+                            <span class="label">{{ node.label }}</span>
+                            <span class="count" v-if="data.count">({{ data.count }})</span>
+                        </span>
+                    </template>
+                </el-tree>
+            </div>
+        </div>
+    </el-drawer>
+
     <!-- Edit Dialog -->
-    <el-dialog v-model="dialogVisible" :title="dialogTitle" width="600px" class="glass-dialog" align-center>
+    <el-dialog v-model="dialogVisible" :title="dialogTitle" width="600px" class="glass-dialog lib-dialog-responsive" align-center>
         <el-form :model="formData" label-position="top" class="custom-form">
             <el-row :gutter="20">
                 <el-col :span="16">
@@ -374,11 +425,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import { Folder, Document, Collection, Plus, UploadFilled, Download, Menu, QuestionFilled } from '@element-plus/icons-vue'
 import { getIndicatorsList } from '../../api/monitor'
 import request from '../../utils/request'
 import { ElMessage, ElMessageBox, ElLoading } from 'element-plus'
+import { useBreakpoint } from '../../composables/useBreakpoint'
+
+const { isMobile, width: viewportWidth } = useBreakpoint()
+const categoryDrawerOpen = ref(false)
+const categoryDrawerPx = computed(() => `${Math.min(Math.floor(viewportWidth.value * 0.92), 360)}px`)
 
 const loading = ref(false)
 const importVisible = ref(false)
@@ -566,8 +622,18 @@ onMounted(() => {
     loadList()
 })
 
+const currentCategoryLabel = computed(() => {
+    const id = queryParams.value.categoryId
+    if (id === undefined || id === null) return '全部分类'
+    return getCategoryName(id)
+})
+
+watch(isMobile, (m) => {
+    if (!m) categoryDrawerOpen.value = false
+})
+
 watch(filterText, (val) => {
-    treeRef.value!.filter(val)
+    treeRef.value?.filter(val)
 })
 
 const filterNode = (value: string, data: any) => {
@@ -580,6 +646,7 @@ const handleNodeClick = (data: any) => {
     queryParams.value.categoryId = data.id
     queryParams.value.pageNum = 1
     loadList()
+    if (isMobile.value) categoryDrawerOpen.value = false
 }
 
 // --- Dialog Logic ---
@@ -1033,9 +1100,21 @@ const handleExportLib = () => {
     flex-direction: column;
 }
 
-.premium-table {
-    flex: 1;
+.lib-table-scroll {
+    width: 100%;
+    min-height: 0;
+    /* 保留横向滑动，隐藏滚动条（移动端更整洁） */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 
+    &::-webkit-scrollbar {
+        display: none;
+        width: 0;
+        height: 0;
+    }
+}
+
+.premium-table {
     :deep(th.el-table__cell) {
         background: #f8fafc;
         color: #64748b;
@@ -1168,6 +1247,138 @@ const handleExportLib = () => {
     &.small {
         font-size: 11px;
         margin-left: 0;
+    }
+}
+
+.lib-filter-search {
+    width: 240px;
+    max-width: 100%;
+    border-radius: 20px;
+}
+
+.lib-filter-select {
+    width: 120px;
+    max-width: 100%;
+}
+
+.category-mobile-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+
+    &__btn {
+        flex-shrink: 0;
+    }
+
+    &__hint {
+        font-size: 13px;
+        color: #64748b;
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
+
+.lib-drawer-tree {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+
+    &__search {
+        flex-shrink: 0;
+        margin-bottom: 12px;
+    }
+
+    &__body {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+    }
+}
+
+@media (max-width: 768px) {
+    .lib-container {
+        overflow: auto;
+        min-height: 0;
+    }
+
+    .header-section {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        margin-bottom: 14px;
+
+        .stat-group {
+            justify-content: center;
+            width: 100%;
+            border-radius: 16px;
+            padding: 10px 16px;
+            flex-wrap: wrap;
+        }
+    }
+
+    .main-board {
+        flex-direction: column;
+        gap: 12px;
+        overflow: visible;
+        min-height: auto;
+    }
+
+    .right-panel {
+        flex: 1;
+        min-height: 0;
+    }
+
+    .filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 14px 16px;
+
+        .inputs {
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+    }
+
+    .lib-filter-search,
+    .lib-filter-select {
+        width: 100% !important;
+    }
+
+    .list-container {
+        min-height: 50vh;
+    }
+
+    .pagination-bar {
+        flex-direction: column;
+        gap: 10px;
+        padding: 12px 16px;
+        align-items: stretch;
+
+        .total {
+            text-align: center;
+        }
+
+        :deep(.el-pagination) {
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+    }
+
+    :deep(.lib-dialog-responsive.el-dialog) {
+        width: min(100vw - 32px, 600px) !important;
     }
 }
 

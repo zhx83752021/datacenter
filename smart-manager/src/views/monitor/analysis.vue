@@ -97,6 +97,7 @@
                             </div>
                             <el-button type="primary" link icon="Download">导出Excel</el-button>
                         </div>
+                        <div class="table-responsive">
                         <el-table :data="tableData" class="premium-table" style="width: 100%">
                             <el-table-column prop="date" label="时间" width="180" />
                             <el-table-column prop="dept" label="科室" width="180">
@@ -123,6 +124,7 @@
                                 </template>
                             </el-table-column>
                         </el-table>
+                        </div>
                     </div>
                 </el-col>
             </el-row>

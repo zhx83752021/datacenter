@@ -10,7 +10,6 @@
                 </div>
                 <div>
                     <div class="main-title">智能辅助诊疗系统</div>
-                    <div class="sub-title">AI Clinical Decision Support System</div>
                 </div>
             </div>
             <div class="actions">
@@ -29,21 +28,21 @@
                 </div>
                 <div class="form-scroll custom-scrollbar">
                     <el-form label-position="top">
-                        <el-form-item label="主诉 (Chief Complaint)">
+                        <el-form-item label="主诉">
                             <el-input type="textarea" :rows="2" v-model="form.complaint"
                                 placeholder="例如：持续性胸痛2小时，向左肩放射..." />
                         </el-form-item>
-                        <el-form-item label="现病史 (HPI)">
+                        <el-form-item label="现病史">
                             <el-input type="textarea" :rows="4" v-model="form.history"
                                 placeholder="详细描述发病过程、诱因、缓解因素..." />
                         </el-form-item>
                         <el-row :gutter="12">
-                            <el-col :span="12">
+                            <el-col :span="12" :xs="24">
                                 <el-form-item label="体温 (℃)">
                                     <el-input v-model="form.temp" />
                                 </el-form-item>
                             </el-col>
-                            <el-col :span="12">
+                            <el-col :span="12" :xs="24">
                                 <el-form-item label="血压 (mmHg)">
                                     <el-input v-model="form.bp" />
                                 </el-form-item>
@@ -70,7 +69,7 @@
 
             <!-- Right: AI Analysis -->
             <div class="right-panel">
-                <div class="result-card glass-panel" v-loading="analyzing" element-loading-text="AI引擎正在运算中...">
+                <div class="result-card glass-panel" v-loading="analyzing" element-loading-text="智能引擎正在运算中...">
                     <template v-if="result">
                         <div class="result-header">
                             <div class="score-box">
@@ -84,7 +83,7 @@
                         <div class="result-body custom-scrollbar">
                             <!-- Probability Chart -->
                             <div class="section">
-                                <div class="sec-title">鉴别诊断 (Differential Diagnosis)</div>
+                                <div class="sec-title">鉴别诊断</div>
                                 <div class="prog-row" v-for="item in result.diffs" :key="item.name">
                                     <div class="info">
                                         <span>{{ item.name }}</span>
@@ -252,12 +251,6 @@ const handleAnalyze = () => {
             font-size: 20px;
             font-weight: 700;
             color: #1e293b;
-        }
-
-        .sub-title {
-            font-size: 13px;
-            color: #64748b;
-            font-family: 'JetBrains Mono';
         }
     }
 }
@@ -549,6 +542,85 @@ const handleAnalyze = () => {
             overflow: hidden;
             text-overflow: ellipsis;
         }
+    }
+}
+
+@media (max-width: 768px) {
+    .ai-diagnosis-container {
+        padding-bottom: 16px;
+        min-height: 0;
+    }
+
+    .header-section {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 14px;
+        margin-bottom: 16px;
+
+        .title-group {
+            min-width: 0;
+
+            .main-title {
+                font-size: clamp(17px, 4.5vw, 20px);
+            }
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            width: 100%;
+
+            :deep(.el-button) {
+                flex: 1;
+                min-width: 0;
+            }
+        }
+    }
+
+    .main-content {
+        flex-direction: column;
+        gap: 16px;
+        min-height: 0;
+    }
+
+    .left-panel {
+        width: 100%;
+        max-height: none;
+        padding: 16px;
+    }
+
+    .right-panel {
+        min-height: 360px;
+
+        .result-header {
+            flex-wrap: wrap;
+            padding: 16px;
+            gap: 12px;
+
+            .diag-name {
+                font-size: clamp(16px, 4.5vw, 22px);
+                flex: 1 1 100%;
+                min-width: 0;
+                order: 3;
+            }
+
+            .score-box {
+                order: 1;
+            }
+
+            :deep(.el-tag) {
+                order: 2;
+            }
+        }
+
+        .result-body {
+            padding: 16px;
+        }
+    }
+
+    :deep(.el-drawer) {
+        width: min(100vw - 24px, 400px) !important;
     }
 }
 </style>

@@ -15,7 +15,6 @@
                     </div>
                     <div class="text-col">
                         <span class="main">患者360全景视图</span>
-                        <span class="sub">Patient 360° View</span>
                     </div>
                 </div>
                 <div class="search-actions">
@@ -524,14 +523,6 @@ $shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.08);
                 font-weight: 700;
                 color: #1e293b;
                 line-height: 1.2;
-            }
-
-            .sub {
-                font-size: 11px;
-                color: #94a3b8;
-                font-weight: 500;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
             }
         }
     }
@@ -1330,8 +1321,68 @@ $shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.08);
     }
 }
 
-/* Responsive */
-@media (max-width: 1400px) {
+/* Responsive — 移动端：三栏纵向堆叠，顶栏搜索占满宽 */
+@media (max-width: 768px) {
+    .patient-container {
+        padding: 12px;
+    }
+
+    .header-section {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 14px;
+
+        .title-group .text-col {
+            min-width: 0;
+
+            .main {
+                font-size: clamp(16px, 4.2vw, 18px);
+            }
+        }
+
+        .search-actions {
+            flex-wrap: wrap;
+            width: 100%;
+            gap: 10px;
+
+            .glass-input {
+                width: 100% !important;
+                flex: 1 1 100%;
+                min-width: 0;
+
+                &.hover-expand:hover,
+                &:focus-within {
+                    width: 100% !important;
+                }
+            }
+
+            .divider-glass {
+                display: none;
+            }
+
+            .action-btn {
+                flex-shrink: 0;
+            }
+        }
+    }
+
+    .content-grid {
+        flex-direction: column;
+        overflow: visible;
+        gap: 16px;
+        min-height: auto;
+    }
+
+    .col-left,
+    .col-mid,
+    .col-right {
+        flex: none !important;
+        width: 100%;
+        min-width: 0;
+    }
+}
+
+@media (max-width: 1400px) and (min-width: 769px) {
     .content-grid {
         gap: 16px;
     }

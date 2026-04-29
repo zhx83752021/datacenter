@@ -99,10 +99,10 @@
                     <div class="detail-body custom-scrollbar">
                         <!-- Preview Card -->
                         <div class="section-card preview-section">
-                            <div class="sc-title">报告预览 (Snapshot)</div>
+                            <div class="sc-title">报告预览</div>
                             <div class="mock-preview">
                                 <div class="mp-header">
-                                    <div class="mp-logo">SMART REPORT</div>
+                                    <div class="mp-logo">智能报告</div>
                                     <div class="mp-date">2024-05-20</div>
                                 </div>
                                 <div class="mp-chart-area">
@@ -502,7 +502,7 @@ const handleCreate = () => {
             background: #fafafa;
 
             .dh-title {
-                font-size: 20px;
+                font-size: clamp(17px, 4vw + 0.25rem, 20px);
                 font-weight: 700;
                 color: #1e293b;
                 margin-bottom: 8px;
@@ -549,23 +549,33 @@ const handleCreate = () => {
                     background: linear-gradient(to bottom, #f8fafc, #fff);
                     border: 1px solid #e2e8f0;
                     border-radius: 8px;
-                    padding: 24px;
+                    padding: clamp(12px, 3.5vw, 24px);
 
                     .mp-header {
                         display: flex;
                         justify-content: space-between;
+                        align-items: center;
+                        gap: clamp(6px, 2vw, 14px);
+                        min-width: 0;
                         border-bottom: 2px solid #000;
                         padding-bottom: 12px;
                         margin-bottom: 20px;
 
                         .mp-logo {
                             font-weight: 900;
-                            font-size: 18px;
-                            letter-spacing: 2px;
+                            font-size: clamp(11px, 2.6vw + 0.35rem, 18px);
+                            letter-spacing: clamp(0.5px, 0.12em, 2px);
+                            line-height: 1.15;
+                            min-width: 0;
+                            flex: 1 1 auto;
                         }
 
                         .mp-date {
-                            font-family: 'JetBrains Mono';
+                            font-family: 'JetBrains Mono', monospace;
+                            font-size: clamp(10px, 2.2vw + 0.3rem, 14px);
+                            white-space: nowrap;
+                            flex-shrink: 0;
+                            font-variant-numeric: tabular-nums;
                         }
                     }
 
@@ -573,8 +583,8 @@ const handleCreate = () => {
                         height: 120px;
                         display: flex;
                         align-items: flex-end;
-                        gap: 20px;
-                        padding: 0 40px;
+                        gap: clamp(8px, 3vw, 20px);
+                        padding: 0 clamp(10px, 6vw, 40px);
                         margin-bottom: 20px;
                         border-left: 1px solid #ccc;
                         border-bottom: 1px solid #ccc;
@@ -716,6 +726,71 @@ const handleCreate = () => {
     100% {
         transform: scale(1);
         box-shadow: 0 0 0 0 rgba(139, 92, 246, 0);
+    }
+}
+
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .stats-row {
+        grid-template-columns: 1fr;
+    }
+
+    .main-layout {
+        flex-direction: column;
+        min-height: 0;
+    }
+
+    .main-layout .task-list {
+        width: 100%;
+        max-height: 42vh;
+        min-height: 0;
+    }
+
+    .main-layout .task-detail {
+        min-height: 45vh;
+    }
+
+    .main-layout .task-detail .detail-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .main-layout .task-detail .detail-header .dh-right {
+        align-self: flex-end;
+    }
+
+    .main-layout .task-detail .detail-body .row-grids {
+        grid-template-columns: 1fr;
+    }
+
+    .main-layout .task-detail .detail-body {
+        padding: clamp(12px, 4vw, 24px);
+    }
+
+    .main-layout .task-detail .detail-body .section-card {
+        padding: clamp(14px, 3vw, 20px);
+    }
+}
+
+@media (max-width: 480px) {
+    .preview-section .mock-preview .mp-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .preview-section .mock-preview .mp-header .mp-logo {
+        flex: none;
+    }
+
+    .preview-section .mock-preview .mp-header .mp-date {
+        align-self: flex-end;
     }
 }
 

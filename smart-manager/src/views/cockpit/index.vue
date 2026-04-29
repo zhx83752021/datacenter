@@ -155,7 +155,7 @@
               <span class="title">门诊人次 TOP 5</span>
             </div>
           </div>
-          <div class="table-wrapper">
+          <div class="table-wrapper table-responsive">
             <el-table :data="rankData" style="width: 100%" class="premium-table-clean">
               <el-table-column type="index" label="排名" width="60">
                 <template #default="{ $index }">
@@ -1013,6 +1013,37 @@ onUnmounted(() => {
     }
     .tt-label { color: #64748b; }
     .tt-value { word-break: break-all; }
+  }
+}
+
+@media (max-width: 768px) {
+  .section-header-modern {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding: 0;
+
+    .title-group .title {
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 1.35;
+      letter-spacing: 0;
+    }
+
+    .actions {
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+    }
+  }
+
+  /* gutter 仅水平方向，纵向堆叠时卡片会贴在一起 */
+  .cockpit-container .top-cards :deep(.el-col:not(:last-child)),
+  .cockpit-container .chart-section :deep(.el-col:not(:last-child)),
+  .cockpit-container .bottom-section :deep(.el-col:not(:last-child)) {
+    margin-bottom: 16px;
   }
 }
 </style>

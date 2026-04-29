@@ -44,9 +44,8 @@
             </div>
         </div>
 
-        <!-- 看板卡片网格 -->
-        <div class="dashboard-grid custom-scrollbar">
-            <!-- 添加卡片 -->
+        <!-- 看板卡片网格（随内容增高，整页滚动，避免区域内嵌套滚动条） -->
+        <div class="dashboard-grid">            <!-- 添加卡片 -->
             <div class="dash-card add-card" @click="openDialog()">
                 <div class="icon-wrap"><el-icon>
                         <Plus />
@@ -119,7 +118,7 @@
                     <el-input v-model="formData.name" placeholder="请输入看板名称（25字以内）" maxlength="25" show-word-limit />
                 </el-form-item>
                 <el-row :gutter="16">
-                    <el-col :span="12">
+                    <el-col :span="12" :xs="24">
                         <el-form-item label="看板类型" prop="category">
                             <el-select v-model="formData.category" placeholder="请选择看板类型" style="width: 100%">
                                 <el-option label="决策驾驶舱" value="cockpit" />
@@ -129,7 +128,7 @@
                             </el-select>
                         </el-form-item>
                     </el-col>
-                    <el-col :span="12">
+                    <el-col :span="12" :xs="24">
                         <el-form-item label="指标主题">
                             <el-tree-select v-model="formData.themeId" :data="themeOptions" placeholder="请选择指标主题"
                                 check-strictly style="width: 100%" />
@@ -138,21 +137,21 @@
                 </el-row>
                 <el-form-item label="发布对象">
                     <el-row :gutter="8" style="width:100%">
-                        <el-col :span="8">
+                        <el-col :span="8" :xs="24">
                             <el-select v-model="formData.publishType" placeholder="对象类型" style="width: 100%">
                                 <el-option label="系统角色" value="role" />
                                 <el-option label="科室" value="dept" />
                                 <el-option label="指定用户" value="user" />
                             </el-select>
                         </el-col>
-                        <el-col :span="16">
+                        <el-col :span="16" :xs="24">
                             <el-input v-model="formData.publishTarget" placeholder="角色/科室/用户名，多个用逗号分隔" />
                         </el-col>
                     </el-row>
                 </el-form-item>
                 <el-form-item label="看板地址" prop="url">
-                    <div style="display: flex; gap: 8px; width: 100%">
-                        <el-input v-model="formData.url" placeholder="输入看板页面链接（如：/cockpit 或外部URL）" style="flex:1" />
+                    <div class="form-url-row">
+                        <el-input v-model="formData.url" placeholder="输入看板页面链接（如：/cockpit 或外部URL）" class="form-url-input" />
                         <el-button type="primary" plain @click="handlePreviewUrl"
                             :disabled="!formData.url">预览</el-button>
                     </div>
@@ -442,12 +441,15 @@ const handleDelete = async (id: number) => {
 </script>
 
 <style scoped lang="scss">
-/* 容器 */
+/* 容器：整页纵向滚动，避免网格区域单独出现滚动条 */
 .dashboard-list-container {
     height: 100%;
     display: flex;
     flex-direction: column;
     padding-bottom: 20px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    min-height: 0;
 }
 
 /* 头部 */
@@ -476,7 +478,7 @@ const handleDelete = async (id: number) => {
         }
 
         .title {
-            font-size: 20px;
+            font-size: clamp(17px, 2vw + 0.75rem, 20px);
             font-weight: 700;
             color: #1e293b;
         }
@@ -561,10 +563,10 @@ const handleDelete = async (id: number) => {
     }
 }
 
-/* 卡片网格 */
+/* 卡片网格：高度随内容伸展，不占用 flex:1 内滚动 */
 .dashboard-grid {
-    flex: 1;
-    overflow-y: auto;
+    flex: 0 0 auto;
+    overflow: visible;
     padding: 4px;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -871,6 +873,121 @@ const handleDelete = async (id: number) => {
     &:hover {
         background: #2563eb;
         transform: translateY(-1px);
+    }
+}
+
+.form-url-row {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    align-items: flex-start;
+    flex-wrap: wrap;
+
+    .form-url-input {
+        flex: 1;
+        min-width: min(100%, 200px);
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-list-container {
+        padding-bottom: 16px;
+        min-height: 0;
+    }
+
+    .header-section {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 14px;
+        margin-bottom: 16px;
+
+        .title-group .title {
+            font-size: clamp(17px, 4.5vw, 20px);
+        }
+
+        .glow-btn {
+            width: 100%;
+        }
+    }
+
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        margin-bottom: 16px;
+
+        .stat-card {
+            padding: 12px 14px;
+            min-width: 0;
+
+            .stat-info {
+                min-width: 0;
+
+                .stat-count {
+                    font-size: clamp(18px, 5vw, 22px);
+                }
+
+                .stat-label {
+                    font-size: 11px;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+            }
+        }
+    }
+
+    .filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 14px;
+        padding: 14px 16px;
+        margin-bottom: 16px;
+
+        .left {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+            width: 100%;
+
+            .glass-radio {
+                width: 100%;
+
+                :deep(.el-radio-group) {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 8px;
+                }
+            }
+        }
+
+        .glass-input {
+            width: 100% !important;
+        }
+    }
+
+    .dashboard-grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 16px;
+    }
+
+    .form-url-row {
+        flex-direction: column;
+        align-items: stretch;
+
+        .form-url-input {
+            width: 100%;
+            min-width: 0;
+        }
+    }
+
+    :deep(.el-dialog:not(.preview-dialog)) {
+        width: min(100vw - 32px, 620px) !important;
+        margin: 2vh auto !important;
+    }
+
+    .preview-frame-wrapper {
+        height: min(85vh, 80dvh);
     }
 }
 </style>

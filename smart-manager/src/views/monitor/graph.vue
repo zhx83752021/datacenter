@@ -14,18 +14,18 @@
                         <p class="subtitle">展示各运营指标间的支撑、因果及数据依赖关系</p>
                     </div>
                 </div>
-                <div class="right-controls">
-                    <el-select v-model="rootIndicator" placeholder="选择核心指标" class="glass-select" style="width: 200px">
+                <div class="right-controls graph-header__toolbar">
+                    <el-select v-model="rootIndicator" placeholder="选择核心指标" class="glass-select graph-select-root">
                         <el-option label="全院总收入" value="income" />
                         <el-option label="门诊人次" value="outpatient" />
                         <el-option label="平均住院日" value="los" />
                     </el-select>
-                    <el-button-group class="ml-4">
+                    <el-button-group class="graph-zoom-group">
                         <el-button :icon="ZoomIn" @click="handleZoom('in')" />
                         <el-button :icon="ZoomOut" @click="handleZoom('out')" />
                         <el-button :icon="Refresh" @click="resetGraph" />
                     </el-button-group>
-                    <el-button type="primary" class="ml-4" icon="FullScreen" round
+                    <el-button type="primary" class="graph-fs-btn" icon="FullScreen" round
                         @click="toggleFullscreen">全屏分析</el-button>
                 </div>
             </div>
@@ -149,8 +149,8 @@ const renderGraph = (nodes: any[], links: any[]) => {
             // @ts-ignore
             focusNodeAdjacency: true,
             force: {
-                repulsion: 2000,
-                edgeLength: [180, 280],
+                repulsion: typeof window !== 'undefined' && window.innerWidth <= 768 ? 900 : 2000,
+                edgeLength: typeof window !== 'undefined' && window.innerWidth <= 768 ? [100, 160] : [180, 280],
                 gravity: 0.1
             },
             label: {
@@ -210,13 +210,17 @@ const goToDetail = () => {
     router.push(`/monitor/analysis/${selectedNode.value.id}`)
 }
 
+const handleResize = () => {
+    myChart?.resize()
+}
+
 onMounted(() => {
     loadData()
-    window.addEventListener('resize', () => myChart?.resize())
+    window.addEventListener('resize', handleResize, { passive: true })
 })
 
 onUnmounted(() => {
-    window.removeEventListener('resize', () => myChart?.resize())
+    window.removeEventListener('resize', handleResize)
     myChart?.dispose()
 })
 </script>
@@ -224,10 +228,12 @@ onUnmounted(() => {
 <style scoped lang="scss">
 .graph-container {
     min-height: calc(100vh - 160px);
+    min-height: calc(100dvh - 160px);
     padding-bottom: 20px;
 
     .main-panel {
         height: calc(100vh - 180px);
+        height: calc(100dvh - 180px);
         padding: 0;
         display: flex;
         flex-direction: column;
@@ -237,6 +243,26 @@ onUnmounted(() => {
     }
 }
 
+.graph-select-root {
+    width: 200px;
+    max-width: 100%;
+}
+
+.graph-header__toolbar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.graph-zoom-group {
+    flex-shrink: 0;
+}
+
+.graph-fs-btn {
+    flex-shrink: 0;
+}
+
 .graph-header {
     padding: 24px;
     border-bottom: 1px solid #f1f5f9;
@@ -244,6 +270,8 @@ onUnmounted(() => {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
 
     .left-info {
         display: flex;
@@ -300,8 +328,10 @@ onUnmounted(() => {
     position: absolute;
     top: 24px;
     right: 24px;
+    left: auto;
     z-index: 10;
-    width: 320px;
+    width: min(320px, calc(100% - 32px));
+    max-width: calc(100vw - 48px);
 }
 
 .node-detail-card {
@@ -373,22 +403,24 @@ onUnmounted(() => {
     position: absolute;
     bottom: 24px;
     left: 24px;
+    right: 24px;
+    max-width: calc(100% - 48px);
     background: rgba(255, 255, 255, 0.8);
     padding: 12px 20px;
     border-radius: 12px;
     border: 1px solid #e2e8f0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    align-items: center;
 
     .legend-item {
         display: flex;
         align-items: center;
         gap: 8px;
         font-size: 12px;
-        margin-bottom: 6px;
+        margin-bottom: 0;
         color: #475569;
-
-        &:last-child {
-            margin-bottom: 0;
-        }
 
         .dot {
             width: 8px;
@@ -439,6 +471,52 @@ onUnmounted(() => {
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .graph-container .main-panel {
+        height: calc(100dvh - 140px);
+        min-height: 420px;
+    }
+
+    .graph-header {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 16px;
+
+        .left-info {
+            align-items: flex-start;
+        }
+
+        .right-controls {
+            width: 100%;
+            justify-content: flex-start;
+        }
+    }
+
+    .graph-select-root {
+        width: 100%;
+    }
+
+    .graph-overlay {
+        top: auto;
+        bottom: 12px;
+        right: 12px;
+        left: 12px;
+        width: auto;
+        max-width: none;
+    }
+
+    .graph-legend {
+        bottom: auto;
+        top: 12px;
+        left: 12px;
+        right: 12px;
+        max-height: 120px;
+        overflow-y: auto;
+        font-size: 11px;
+        padding: 10px 12px;
     }
 }
 </style>

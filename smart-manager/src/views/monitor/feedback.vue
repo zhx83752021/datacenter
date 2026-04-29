@@ -13,7 +13,7 @@
                     </div>
                 </div>
                 <div class="actions">
-                    <div class="radio-pill-group">
+                    <div class="radio-pill-group radio-pill-group--scroll">
                         <span class="pill-option" :class="{ active: statusFilter === 'all' }"
                             @click="statusFilter = 'all'">全部</span>
                         <span class="pill-option" :class="{ active: statusFilter === '0' }"
@@ -26,7 +26,8 @@
                 </div>
             </div>
 
-            <el-table :data="filteredData" class="premium-table" style="width: 100%" height="calc(100vh - 280px)">
+            <div class="feedback-table-shell" :class="tableShellClass">
+            <el-table :data="filteredData" class="premium-table" style="width: 100%" height="100%">
                 <el-table-column prop="date" label="提交时间" width="180">
                     <template #default="{ row }"><span class="text-secondary text-sm font-mono">{{ row.date
                     }}</span></template>
@@ -56,7 +57,7 @@
                         </div>
                     </template>
                 </el-table-column>
-                <el-table-column label="操作" width="160" fixed="right" align="center">
+                <el-table-column label="操作" width="160" :fixed="fixedRight" align="center">
                     <template #default="{ row }">
                         <el-button v-if="row.status !== '2'" type="primary" link size="small"
                             @click="handleProcess(row)">
@@ -73,14 +74,24 @@
                     </template>
                 </el-table-column>
             </el-table>
+            </div>
 
             <div class="pagination-footer mt-4">
-                <el-pagination background layout="prev, pager, next, total" :total="filteredData.length" />
+                <el-pagination
+                    v-model:current-page="pagination.pageNum"
+                    v-model:page-size="pagination.pageSize"
+                    background
+                    layout="prev, pager, next, total"
+                    :small="isMobile"
+                    :pager-count="isMobile ? 5 : 7"
+                    :total="pagination.total"
+                    @current-change="loadData"
+                />
             </div>
         </div>
 
         <!-- Process Dialog -->
-        <el-dialog v-model="processVisible" title="反馈处理" width="500px" class="glass-dialog">
+        <el-dialog v-model="processVisible" title="反馈处理" width="500px" class="glass-dialog feedback-dialog-responsive" align-center>
             <el-form label-position="top">
                 <el-form-item label="当前状态">
                     <div class="status-badge large" :class="getStatusClass(currentRow?.status)">
@@ -109,11 +120,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive, onMounted } from 'vue'
+import { ref, computed, reactive, onMounted, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Message, EditPen, Check } from '@element-plus/icons-vue'
 import { getFeedbackList, processFeedback } from '@/api/feedback'
+import { useTableFixedColumns } from '@/composables/useTableFixedColumns'
 
+const { isMobile, fixedRight, tableShellClass } = useTableFixedColumns()
 const statusFilter = ref('all')
 const processVisible = ref(false)
 const currentRow = ref<any>(null)
@@ -213,6 +226,11 @@ const confirmProcess = async () => {
 }
 
 onMounted(() => loadData())
+
+watch(statusFilter, () => {
+    pagination.pageNum = 1
+    loadData()
+})
 </script>
 
 <style scoped lang="scss">
@@ -233,6 +251,13 @@ onMounted(() => loadData())
         &:hover {
             border-color: rgba(13, 189, 168, 0.3);
         }
+    }
+
+    .feedback-table-shell {
+        flex: 1;
+        min-height: 0;
+        min-width: 0;
+        width: 100%;
     }
 
     .panel-header {
@@ -277,6 +302,27 @@ onMounted(() => loadData())
                     color: var(--text-secondary);
                 }
             }
+        }
+    }
+
+    .radio-pill-group--scroll {
+        max-width: 100%;
+        overflow-x: auto;
+        overflow-y: hidden;
+        flex-wrap: nowrap;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+
+        &::-webkit-scrollbar {
+            display: none;
+            height: 0;
+            width: 0;
+        }
+
+        .pill-option {
+            flex: 0 0 auto;
+            white-space: nowrap;
         }
     }
 
@@ -425,6 +471,40 @@ onMounted(() => loadData())
         to {
             opacity: 1;
             transform: translateY(0);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .panel-header {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 14px;
+            margin-bottom: 16px;
+
+            .actions {
+                width: 100%;
+            }
+        }
+
+        .glass-panel {
+            padding: 16px;
+        }
+
+        .feedback-table-shell {
+            min-height: 280px;
+        }
+
+        .pagination-footer {
+            justify-content: center;
+
+            :deep(.el-pagination) {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+
+        :deep(.feedback-dialog-responsive.el-dialog) {
+            width: min(100vw - 32px, 500px) !important;
         }
     }
 }

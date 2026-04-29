@@ -2,7 +2,7 @@
     <div class="log-container animate-enter">
         <div class="glass-panel main-panel">
             <!-- 头部 -->
-            <div class="panel-header">
+            <div class="panel-header sys-page-header">
                 <div class="title-with-icon">
                     <div class="icon-box">
                         <el-icon :size="20">
@@ -17,7 +17,7 @@
             </div>
 
             <!-- 标签页切换 -->
-            <div class="tab-bar">
+            <div class="tab-bar sys-tab-bar">
                 <span class="tab-item" :class="{ active: activeTab === 'operation' }" @click="activeTab = 'operation'">
                     <el-icon>
                         <Edit />
@@ -36,7 +36,7 @@
             </div>
 
             <!-- 筛选栏 -->
-            <div class="filter-row">
+            <div class="filter-row sys-toolbar">
                 <el-input v-model="searchKey" placeholder="搜索操作人/模块/内容..." prefix-icon="Search" class="glass-input"
                     style="width: 260px" clearable />
                 <el-date-picker v-model="dateRange" type="daterange" range-separator="至" start-placeholder="开始日期"
@@ -48,8 +48,8 @@
             </div>
 
             <!-- 操作审计表格 -->
-            <div class="table-wrapper" v-if="activeTab === 'operation'">
-                <el-table :data="operationLogs" class="premium-table" style="width: 100%" height="calc(100vh - 360px)">
+            <div class="table-wrapper table-responsive" v-if="activeTab === 'operation'">
+                <el-table :data="operationLogs" class="premium-table" style="width: 100%" :height="tableScrollHeight">
                     <el-table-column prop="operTime" label="操作时间" width="170">
                         <template #default="{ row }">
                             <span class="font-mono text-sm text-secondary">{{ row.operTime }}</span>
@@ -97,8 +97,8 @@
             </div>
 
             <!-- 安全登录表格 -->
-            <div class="table-wrapper" v-if="activeTab === 'login'">
-                <el-table :data="loginLogs" class="premium-table" style="width: 100%" height="calc(100vh - 360px)">
+            <div class="table-wrapper table-responsive" v-if="activeTab === 'login'">
+                <el-table :data="loginLogs" class="premium-table" style="width: 100%" :height="tableScrollHeight">
                     <el-table-column prop="loginTime" label="登录时间" width="170">
                         <template #default="{ row }">
                             <span class="font-mono text-sm text-secondary">{{ row.loginTime }}</span>
@@ -126,8 +126,8 @@
             </div>
 
             <!-- 错误追踪表格 -->
-            <div class="table-wrapper" v-if="activeTab === 'error'">
-                <el-table :data="errorLogs" class="premium-table" style="width: 100%" height="calc(100vh - 360px)">
+            <div class="table-wrapper table-responsive" v-if="activeTab === 'error'">
+                <el-table :data="errorLogs" class="premium-table" style="width: 100%" :height="tableScrollHeight">
                     <el-table-column prop="errorTime" label="发生时间" width="170">
                         <template #default="{ row }">
                             <span class="font-mono text-sm text-secondary">{{ row.errorTime }}</span>
@@ -156,7 +156,7 @@
         </div>
 
         <!-- 详情抽屉 -->
-        <el-drawer v-model="detailVisible" title="日志详情" size="480px">
+        <el-drawer v-model="detailVisible" title="日志详情" size="480px" class="sys-drawer-responsive" append-to-body>
             <div class="detail-content" v-if="currentDetail">
                 <div class="detail-item" v-for="(val, key) in currentDetail" :key="key">
                     <span class="label">{{ key }}</span>
@@ -168,9 +168,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Tickets, Edit, Key, WarningFilled, Search, Download } from '@element-plus/icons-vue'
+import { useBreakpoint } from '@/composables/useBreakpoint'
+
+const { isMobile } = useBreakpoint()
+
+const tableScrollHeight = computed<string | undefined>(() =>
+    isMobile.value ? undefined : 'calc(100vh - 360px)'
+)
 
 const activeTab = ref('operation')
 const searchKey = ref('')
@@ -228,6 +235,9 @@ const handleExport = () => {
 .log-container {
     height: 100%;
     padding-bottom: 20px;
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
 
     .glass-panel {
         background: #fff;
@@ -235,6 +245,7 @@ const handleExport = () => {
         border: 1px solid #e2e8f0;
         padding: 24px;
         height: 100%;
+        min-width: 0;
         display: flex;
         flex-direction: column;
         transition: all 0.3s;
@@ -335,10 +346,11 @@ const handleExport = () => {
     }
 }
 
-/* 表格 */
+/* 表格：配合全局 .table-responsive 横向滚动 */
 .table-wrapper {
     flex: 1;
-    overflow: hidden;
+    min-height: 0;
+    width: 100%;
 }
 
 .premium-table {
@@ -448,11 +460,39 @@ const handleExport = () => {
     color: #94a3b8;
 }
 
-/* 分页 */
+/* 分页：窄屏下避免「共 n 条」被主区域 overflow-x:hidden 裁切，可横向滚动查看 */
 .pagination-footer {
     margin-top: 16px;
     display: flex;
     justify-content: flex-end;
+    width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+
+    :deep(.el-pagination) {
+        display: inline-flex;
+        flex-wrap: nowrap;
+        align-items: center;
+        justify-content: flex-end;
+        flex-shrink: 0;
+        white-space: nowrap;
+        max-width: none;
+
+        .el-pagination__total,
+        .el-pagination__sizes,
+        .btn-prev,
+        .el-pager,
+        .btn-next,
+        .el-pagination__jump {
+            flex-shrink: 0;
+        }
+    }
+
+    @media (max-width: 768px) {
+        justify-content: flex-start;
+    }
 }
 
 /* 详情抽屉 */

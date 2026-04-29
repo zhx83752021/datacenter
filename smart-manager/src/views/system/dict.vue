@@ -51,8 +51,8 @@
                     </div>
                 </div>
 
-                <!-- 字典数据表格 -->
-                <div class="table-wrapper" v-if="currentType">
+                <!-- 桌面 sys-table-shell；窄屏关 fixed 后用 table-responsive -->
+                <div class="table-wrapper" :class="tableShellClass" v-if="currentType">
                     <el-table :data="currentDictData" class="premium-table" style="width: 100%">
                         <el-table-column prop="dictSort" label="排序" width="70" align="center" />
                         <el-table-column prop="dictLabel" label="字典标签" min-width="160">
@@ -82,7 +82,7 @@
                             </template>
                         </el-table-column>
                         <el-table-column prop="remark" label="备注" min-width="140" show-overflow-tooltip />
-                        <el-table-column label="操作" width="140" align="center" fixed="right">
+                        <el-table-column label="操作" width="140" align="center" :fixed="fixedRight">
                             <template #default="{ row }">
                                 <el-button link type="primary" size="small" @click="handleEditData(row)">编辑</el-button>
                                 <el-button link type="danger" size="small" @click="handleDeleteData(row)">删除</el-button>
@@ -102,7 +102,8 @@
         </div>
 
         <!-- 字典类型编辑对话框 -->
-        <el-dialog v-model="typeDialogVisible" :title="typeDialogTitle" width="480px" align-center>
+        <el-dialog v-model="typeDialogVisible" :title="typeDialogTitle" width="480px" align-center
+            class="sys-dialog-responsive">
             <el-form :model="typeForm" label-position="top">
                 <el-form-item label="字典名称" required>
                     <el-input v-model="typeForm.dictName" placeholder="请输入字典名称" />
@@ -121,31 +122,34 @@
                 </el-form-item>
             </el-form>
             <template #footer>
-                <el-button @click="typeDialogVisible = false">取消</el-button>
-                <el-button type="primary" @click="saveType">保存</el-button>
+                <div class="sys-dialog-footer">
+                    <el-button @click="typeDialogVisible = false">取消</el-button>
+                    <el-button type="primary" @click="saveType">保存</el-button>
+                </div>
             </template>
         </el-dialog>
 
         <!-- 字典数据编辑对话框 -->
-        <el-dialog v-model="dataDialogVisible" :title="dataDialogTitle" width="480px" align-center>
+        <el-dialog v-model="dataDialogVisible" :title="dataDialogTitle" width="480px" align-center
+            class="sys-dialog-responsive">
             <el-form :model="dataForm" label-position="top">
                 <el-form-item label="字典标签" required>
                     <el-input v-model="dataForm.dictLabel" placeholder="请输入标签名称" />
                 </el-form-item>
                 <el-row :gutter="16">
-                    <el-col :span="12">
+                    <el-col :span="12" :xs="24">
                         <el-form-item label="字典键值" required>
                             <el-input v-model="dataForm.dictValue" placeholder="如 0, 1, 2..." />
                         </el-form-item>
                     </el-col>
-                    <el-col :span="12">
+                    <el-col :span="12" :xs="24">
                         <el-form-item label="显示排序">
                             <el-input-number v-model="dataForm.dictSort" :min="0" :max="999" style="width: 100%" />
                         </el-form-item>
                     </el-col>
                 </el-row>
                 <el-row :gutter="16">
-                    <el-col :span="12">
+                    <el-col :span="12" :xs="24">
                         <el-form-item label="标签样式">
                             <el-select v-model="dataForm.listClass" placeholder="选择样式">
                                 <el-option label="默认(default)" value="" />
@@ -157,7 +161,7 @@
                             </el-select>
                         </el-form-item>
                     </el-col>
-                    <el-col :span="12">
+                    <el-col :span="12" :xs="24">
                         <el-form-item label="状态">
                             <el-radio-group v-model="dataForm.status">
                                 <el-radio label="0">正常</el-radio>
@@ -171,8 +175,10 @@
                 </el-form-item>
             </el-form>
             <template #footer>
-                <el-button @click="dataDialogVisible = false">取消</el-button>
-                <el-button type="primary" @click="saveData">保存</el-button>
+                <div class="sys-dialog-footer">
+                    <el-button @click="dataDialogVisible = false">取消</el-button>
+                    <el-button type="primary" @click="saveData">保存</el-button>
+                </div>
             </template>
         </el-dialog>
     </div>
@@ -182,6 +188,9 @@
 import { ref, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Notebook, Plus, Search } from '@element-plus/icons-vue'
+import { useTableFixedColumns } from '@/composables/useTableFixedColumns'
+
+const { fixedRight, tableShellClass } = useTableFixedColumns()
 
 const typeSearch = ref('')
 const typeDialogVisible = ref(false)
@@ -450,7 +459,10 @@ const saveData = () => {
 /* 表格 */
 .table-wrapper {
     flex: 1;
-    overflow: auto;
+    min-height: 0;
+    min-width: 0;
+    overflow-x: visible;
+    overflow-y: hidden;
 }
 
 .premium-table {
@@ -561,6 +573,31 @@ const saveData = () => {
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .dict-container .content-layout {
+        flex-direction: column;
+        height: auto;
+        min-height: calc(100vh - 120px);
+    }
+
+    .dict-container .left-panel {
+        width: 100%;
+        max-height: 280px;
+        flex-shrink: 0;
+    }
+
+    .dict-container .right-panel {
+        flex: 1;
+        min-height: 320px;
+    }
+
+    /* 窄屏关 fixed 后，与 table-responsive 一致 */
+    .table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
 }
 </style>

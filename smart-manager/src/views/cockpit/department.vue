@@ -25,7 +25,7 @@
                     <el-option label="普外科" value="general" />
                 </el-select>
                 <div class="divider-v"></div>
-                <span class="update-time">UPDATE: 14:00</span>
+                <span class="update-time">更新 14:00</span>
                 <el-button circle icon="Back" class="back-btn" @click="$router.push('/cockpit')"
                     title="返回院级"></el-button>
             </div>
@@ -146,6 +146,7 @@
                                 <ArrowRight />
                             </el-icon></el-button>
                     </div>
+                    <div class="table-responsive dept-doctor-table">
                     <el-table :data="doctorData" class="premium-table" style="width: 100%" height="260px">
                         <el-table-column type="index" label="排名" width="60" align="center">
                             <template #default="{ $index }">
@@ -182,6 +183,7 @@
                             </template>
                         </el-table-column>
                     </el-table>
+                    </div>
                 </div>
             </el-col>
         </el-row>

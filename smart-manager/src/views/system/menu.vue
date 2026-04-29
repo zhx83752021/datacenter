@@ -1,7 +1,7 @@
 <template>
     <div class="menu-manage-container animate-enter">
         <div class="glass-panel main-panel">
-            <div class="panel-header">
+            <div class="panel-header sys-page-header">
                 <div class="title-section">
                     <div class="icon-box">
                         <el-icon>
@@ -15,6 +15,7 @@
                 </div>
             </div>
 
+            <div class="menu-table-wrap table-responsive table-responsive--grow">
             <el-table :data="tableData" class="premium-table" height="100%" row-key="id" default-expand-all>
                 <el-table-column prop="menuName" label="菜单名称" min-width="250">
                     <template #default="{ row }">
@@ -57,17 +58,21 @@
                     </template>
                 </el-table-column>
             </el-table>
+            </div>
         </div>
 
-        <el-dialog v-model="dialogVisible" :title="dialogTitle" width="600px" append-to-body>
-            <el-form :model="formData" label-width="100px" class="menu-form">
+        <el-dialog v-model="dialogVisible" :title="dialogTitle" width="600px" append-to-body
+            class="menu-dialog-responsive sys-dialog-responsive"
+            :close-on-click-modal="false">
+            <el-form :model="formData" :label-position="formLabelPosition" :label-width="formLabelWidth"
+                class="menu-form">
                 <el-form-item label="上级菜单">
                     <el-tree-select v-model="formData.parentId" :data="menuTreeOptions"
-                        :props="{ label: 'menuName', value: 'id', children: 'children' }" value-key="id" placeholder="选择上级菜单"
-                        check-strictly />
+                        :props="{ label: 'menuName', value: 'id', children: 'children' }" value-key="id"
+                        placeholder="选择上级菜单" check-strictly class="menu-form-fullwidth" />
                 </el-form-item>
                 <el-form-item label="菜单类型">
-                    <el-radio-group v-model="formData.menuType">
+                    <el-radio-group v-model="formData.menuType" class="menu-form-radio-wrap">
                         <el-radio label="M">目录</el-radio>
                         <el-radio label="C">菜单</el-radio>
                         <el-radio label="F">按钮</el-radio>
@@ -77,12 +82,12 @@
                     <el-input v-model="formData.menuName" placeholder="请输入菜单名称" />
                 </el-form-item>
                 <el-row :gutter="20">
-                    <el-col :span="12">
+                    <el-col :span="12" :xs="24">
                         <el-form-item label="显示顺序">
-                            <el-input-number v-model="formData.orderNum" :min="0" />
+                            <el-input-number v-model="formData.orderNum" :min="0" class="menu-input-number" />
                         </el-form-item>
                     </el-col>
-                    <el-col :span="12">
+                    <el-col :span="12" :xs="24">
                         <el-form-item label="菜单图标">
                             <el-input v-model="formData.icon" placeholder="图标名称" />
                         </el-form-item>
@@ -98,25 +103,33 @@
                     <el-input v-model="formData.perms" placeholder="请输入权限字符" />
                 </el-form-item>
                 <el-form-item label="菜单状态">
-                    <el-radio-group v-model="formData.status" size="small">
+                    <el-radio-group v-model="formData.status" size="small" class="menu-form-radio-wrap">
                         <el-radio label="0">正常</el-radio>
                         <el-radio label="1">停用</el-radio>
                     </el-radio-group>
                 </el-form-item>
             </el-form>
             <template #footer>
-                <el-button @click="dialogVisible = false">取消</el-button>
-                <el-button type="primary" @click="handleSave">保存</el-button>
+                <div class="menu-dialog-footer sys-dialog-footer">
+                    <el-button @click="dialogVisible = false">取消</el-button>
+                    <el-button type="primary" @click="handleSave">保存</el-button>
+                </div>
             </template>
         </el-dialog>
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Menu } from '@element-plus/icons-vue'
 import { addMenu, updateMenu, delMenu, getMenuTree } from '@/api/system'
+import { useBreakpoint } from '@/composables/useBreakpoint'
+
+const { isMobile } = useBreakpoint()
+
+const formLabelPosition = computed(() => (isMobile.value ? 'top' : 'right'))
+const formLabelWidth = computed((): string | undefined => (isMobile.value ? undefined : '100px'))
 
 const tableData = ref<any[]>([])
 const menuTreeOptions = ref<any[]>([])
@@ -252,9 +265,12 @@ onMounted(() => {
         }
     }
 
-    .premium-table {
-        flex: 1;
+    .menu-table-wrap {
+        width: 100%;
+        min-height: 0;
+    }
 
+    .premium-table {
         :deep(th.el-table__cell) {
             background: #f8fafc;
             color: #64748b;
@@ -372,6 +388,45 @@ onMounted(() => {
 
     .mr-2 {
         margin-right: 8px;
+    }
+}
+
+.menu-dialog-footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 10px;
+    width: 100%;
+}
+
+.menu-form {
+    :deep(.menu-form-fullwidth) {
+        width: 100%;
+    }
+
+    :deep(.menu-form-radio-wrap) {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 16px;
+        row-gap: 8px;
+    }
+
+    :deep(.menu-input-number) {
+        width: 100%;
+
+        .el-input__wrapper {
+            width: 100%;
+        }
+    }
+
+    :deep(.el-input),
+    :deep(.el-input-number) {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    :deep(.el-tree-select) {
+        width: 100%;
     }
 }
 </style>

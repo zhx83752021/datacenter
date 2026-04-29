@@ -74,6 +74,7 @@
 
     <!-- List View -->
     <div class="report-list glass-panel mt-4 animate-enter" style="animation-delay: 0.2s" v-else>
+      <div class="table-responsive">
       <el-table :data="filteredData" style="width: 100%" class="premium-table">
         <el-table-column prop="name" label="报表名称" min-width="240">
           <template #default="{ row }">
@@ -103,6 +104,7 @@
           </template>
         </el-table-column>
       </el-table>
+      </div>
     </div>
   </div>
 </template>
@@ -536,6 +538,56 @@ const handlePreview = (row: any) => {
     to {
       opacity: 1;
       transform: translateY(0);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .header-section {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 16px;
+
+      .title-group .text-col .main {
+        font-size: clamp(17px, 4.5vw, 20px);
+      }
+
+      .actions {
+        align-self: stretch;
+
+        .new-btn {
+          width: 100%;
+        }
+      }
+    }
+
+    .filter-glass {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 16px;
+      padding: 16px;
+
+      .left-filters {
+        flex-direction: column;
+        width: 100%;
+
+        .glass-select,
+        .glass-input {
+          width: 100% !important;
+        }
+      }
+
+      .view-switch {
+        align-self: center;
+      }
+    }
+
+    .report-grid {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 16px;
+    }
+
+    .glass-panel {
+      padding: 16px;
     }
   }
 }

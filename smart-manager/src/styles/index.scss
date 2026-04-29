@@ -1,4 +1,5 @@
 @use './variables.scss' as *;
+@use './system-pages-responsive.scss' as *;
 
 /* ---------------------------------------------------------
    Global UI Polish - 消除交互元素点击时的“竖杠”/边框
@@ -93,7 +94,52 @@ body.dark-theme {
 }
 
 #app {
+    min-height: 100vh;
+    min-height: 100dvh;
     height: 100vh;
+    height: 100dvh;
+}
+
+/* 窄屏表格：避免撑破视口，配合 overflow-x 横向查阅（MOBILE_RESPONSIVE_PLAN）
+ * 使用 el-table 的 fixed 固定列时，外层勿套本类，避免与表格内部滚动叠加导致固定列被裁切。 */
+.table-responsive {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* 与 flex 主面板配合：占满剩余高度并允许内部表格滚动 */
+.table-responsive--grow {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+}
+
+/* el-table 含 fixed 列时：外层勿用 overflow-x:auto，见 MOBILE_RESPONSIVE_PLAN */
+.sys-table-shell {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    width: 100%;
+    overflow-x: visible;
+    overflow-y: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .animate-enter,
+    .hover-lift:hover,
+    .fade-slide-enter-active,
+    .fade-slide-leave-active {
+        animation: none !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* 窄屏内容区底部安全区；is-mobile 由 layout/index.vue 在 ≤768px 挂载 */
+#app .content-wrapper.is-mobile {
+    padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
 }
 
 /* ========================================

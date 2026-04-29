@@ -3,30 +3,31 @@
     <!-- Filter Level -->
     <div class="filter-bar animate-enter">
       <div class="left-tools">
-        <el-radio-group v-model="currentTheme" class="theme-switch" fill="var(--primary)">
-          <el-radio-button v-for="t in themes" :key="t.id" :label="t.id">
-            <div class="radio-label">
-              <el-icon>
-                <component :is="t.icon" />
-              </el-icon> {{ t.label }}
-            </div>
-          </el-radio-button>
-        </el-radio-group>
+        <div class="filter-theme-row">
+          <el-radio-group v-model="currentTheme" class="theme-switch theme-switch--scroll" fill="var(--primary)">
+            <el-radio-button v-for="t in themes" :key="t.id" :label="t.id">
+              <div class="radio-label">
+                <el-icon>
+                  <component :is="t.icon" />
+                </el-icon> {{ t.label }}
+              </div>
+            </el-radio-button>
+          </el-radio-group>
+        </div>
       </div>
       <div class="right-tools">
-        <el-select v-model="form.campus" placeholder="院区" class="glass-select" style="width: 100px" clearable>
+        <el-select v-model="form.campus" placeholder="院区" class="glass-select filter-field-campus" clearable>
           <el-option label="总院" value="main" />
           <el-option label="东院" value="east" />
         </el-select>
-        <el-select v-model="form.dept" placeholder="科室" class="glass-select" style="width: 100px" clearable>
+        <el-select v-model="form.dept" placeholder="科室" class="glass-select filter-field-dept" clearable>
           <el-option label="信息科" value="XXK" />
           <el-option label="医务科" value="YWK" />
         </el-select>
-        <el-date-picker v-model="form.date" type="month" placeholder="时间" class="glass-input" style="width: 120px"
+        <el-date-picker v-model="form.date" type="month" placeholder="时间" class="glass-input filter-field-date"
           :editable="false" />
         <div class="divider"></div>
-        <el-input v-model="form.keyword" placeholder="搜索指标..." prefix-icon="Search" class="glass-input"
-          style="width: 180px" />
+        <el-input v-model="form.keyword" placeholder="搜索指标..." prefix-icon="Search" class="glass-input filter-field-keyword" />
         <div class="view-toggles">
           <div class="toggle-btn" :class="{ active: viewMode === 'card' }" @click="viewMode = 'card'"><el-icon>
               <Grid />
@@ -35,8 +36,12 @@
               <Menu />
             </el-icon></div>
         </div>
-        <el-button type="info" :icon="Download" @click="handleExportLib" class="export-btn" plain>导出指标库</el-button>
-        <el-button type="success" :icon="Download" @click="handleExport" class="export-btn">导出数据</el-button>
+        <div class="export-actions">
+          <el-button type="info" :icon="Download" plain class="export-btn export-btn--secondary"
+            @click="handleExportLib">导出指标库</el-button>
+          <el-button type="success" :icon="Download" class="export-btn export-btn--primary"
+            @click="handleExport">导出数据</el-button>
+        </div>
       </div>
     </div>
 
@@ -129,9 +134,9 @@
               </div>
             </div>
             <div class="card-body">
-              <div class="label" style="display: flex; align-items: center; gap: 4px;">
-                {{ item.name }}
-
+              <div class="indicator-card__title-row">
+                <span class="indicator-card__name">{{ item.name }}</span>
+                <span class="indicator-card__hint" @click.stop>
                 <el-tooltip effect="light" placement="top-start" :show-after="200" popper-class="glass-tooltip">
                   <template #content>
                     <div class="indicator-tooltip-content">
@@ -170,6 +175,7 @@
                     <QuestionFilled />
                   </el-icon>
                 </el-tooltip>
+                </span>
               </div>
               <div class="value-row">
                 <span class="val metric-value">{{ item.value }}</span>
@@ -192,91 +198,102 @@
     </div>
 
 
-    <!-- Table Mode -->
+    <!-- Table Mode：无 fixed 列，外层横滑；列 min-width 防止窄屏被压成单字竖排 -->
     <div class="table-area mt-4 glass-panel p-0 animate-enter" style="animation-delay: 0.4s" v-else>
-      <el-table :data="indicators" style="width: 100%" class="monitor-table">
-        <el-table-column prop="name" label="指标名称">
-          <template #default="{ row }">
-            <div class="table-name-cell" @click="handleDrill(row)">
-              <div class="icon-mini" :style="{ background: row.color }">
-                <el-icon>
-                  <component :is="row.icon" />
-                </el-icon>
-              </div>
-              <span style="display: flex; align-items: center; gap: 4px;">
-                {{ row.name }}
-                <el-tooltip effect="light" placement="right" :show-after="200" popper-class="glass-tooltip">
-                  <template #content>
-                    <div class="indicator-tooltip-content">
-                      <div class="tt-header">
-                        <el-icon>
-                          <Menu />
-                        </el-icon>
-                        <span style="font-weight:600; font-size: 14px; color:var(--text-primary)">指标深度溯源</span>
-                      </div>
-                      <div class="tt-body">
-                        <div class="tt-item" v-if="row.formula || row.policySource">
-                          <span class="tt-label">🧮 计算公式：</span>
-                          <span class="tt-value" style="font-family: monospace;">{{ row.formula || '系统直接获取基础数值'
-                          }}</span>
-                        </div>
-                        <div class="tt-item" v-if="row.policySource">
-                          <span class="tt-label">🏷️ 政策来源：</span>
-                          <div class="tt-value">
-                            <el-tag size="small" type="danger" effect="light" style="border-radius:2px;">{{
-                              row.policySource }}</el-tag>
+      <div class="monitor-table-scroll">
+        <el-table :data="indicators" class="monitor-table" style="width: 100%; min-width: 640px">
+          <el-table-column prop="name" label="指标名称" min-width="240">
+            <template #default="{ row }">
+              <div class="table-name-cell" @click="handleDrill(row)">
+                <div class="icon-mini" :style="{ background: row.color }">
+                  <el-icon>
+                    <component :is="row.icon" />
+                  </el-icon>
+                </div>
+                <div class="table-name-cell__main">
+                  <div class="table-name-cell__text">{{ row.name }}</div>
+                  <span class="table-name-cell__hint" @click.stop>
+                    <el-tooltip effect="light" placement="top" :show-after="200" popper-class="glass-tooltip">
+                      <template #content>
+                        <div class="indicator-tooltip-content">
+                          <div class="tt-header">
+                            <el-icon>
+                              <Menu />
+                            </el-icon>
+                            <span style="font-weight:600; font-size: 14px; color:var(--text-primary)">指标深度溯源</span>
+                          </div>
+                          <div class="tt-body">
+                            <div class="tt-item" v-if="row.formula || row.policySource">
+                              <span class="tt-label">🧮 计算公式：</span>
+                              <span class="tt-value" style="font-family: monospace;">{{ row.formula || '系统直接获取基础数值'
+                              }}</span>
+                            </div>
+                            <div class="tt-item" v-if="row.policySource">
+                              <span class="tt-label">🏷️ 政策来源：</span>
+                              <div class="tt-value">
+                                <el-tag size="small" type="danger" effect="light" style="border-radius:2px;">{{
+                                  row.policySource }}</el-tag>
+                              </div>
+                            </div>
+                            <div class="tt-item">
+                              <span class="tt-label">📡 数据提取：</span>
+                              <span class="tt-value">{{ row.dataSource || '暂未绑定自动化源系统' }}</span>
+                            </div>
+                            <div class="tt-item" v-if="row.thresholdDesc">
+                              <span class="tt-label" style="color:#ef4444">🚨 红线阈值：</span>
+                              <span class="tt-value" style="color:#ef4444; font-weight: 500;">{{ row.thresholdDesc }}</span>
+                            </div>
                           </div>
                         </div>
-                        <div class="tt-item">
-                          <span class="tt-label">📡 数据提取：</span>
-                          <span class="tt-value">{{ row.dataSource || '暂未绑定自动化源系统' }}</span>
-                        </div>
-                        <div class="tt-item" v-if="row.thresholdDesc">
-                          <span class="tt-label" style="color:#ef4444">🚨 红线阈值：</span>
-                          <span class="tt-value" style="color:#ef4444; font-weight: 500;">{{ row.thresholdDesc }}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </template>
-                  <el-icon class="info-icon" style="cursor:help; color:#94a3b8;">
-                    <QuestionFilled />
-                  </el-icon>
-                </el-tooltip>
+                      </template>
+                      <span class="table-name-cell__hint-trigger">
+                        <el-icon class="info-icon table-name-cell__hint-icon">
+                          <QuestionFilled />
+                        </el-icon>
+                      </span>
+                    </el-tooltip>
+                  </span>
+                </div>
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column label="分类" min-width="104">
+            <template #default="{ row }">
+              {{ getCategoryLabel(row.theme) }}
+            </template>
+          </el-table-column>
+          <el-table-column prop="value" label="当前数值" min-width="132">
+            <template #default="{ row }">
+              <span class="metric-value font-medium">{{ row.value }}</span> <span class="text-xs text-gray">{{ row.unit
+              }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="mom" label="环比" min-width="108">
+            <template #default="{ row }">
+              <span :class="row.mom >= 0 ? 'text-up' : 'text-down'" class="font-bold flex-center">
+                <el-icon class="mr-1">
+                  <component :is="row.mom >= 0 ? 'Top' : 'Bottom'" />
+                </el-icon> {{ Math.abs(row.mom) }}%
               </span>
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column label="分类" width="120">
-          <template #default="{ row }">
-            {{ getCategoryLabel(row.theme) }}
-          </template>
-        </el-table-column>
-        <el-table-column prop="value" label="当前数值" width="140">
-          <template #default="{ row }">
-            <span class="metric-value font-medium">{{ row.value }}</span> <span class="text-xs text-gray">{{ row.unit
-            }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="mom" label="环比" width="120">
-          <template #default="{ row }">
-            <span :class="row.mom >= 0 ? 'text-up' : 'text-down'" class="font-bold flex-center">
-              <el-icon class="mr-1">
-                <component :is="row.mom >= 0 ? 'Top' : 'Bottom'" />
-              </el-icon> {{ Math.abs(row.mom) }}%
-            </span>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" width="100" align="center">
-          <template #default="{ row }">
-            <el-button link type="primary" @click="handleDrill(row)">详情</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" min-width="88" align="center">
+            <template #default="{ row }">
+              <el-button link type="primary" @click="handleDrill(row)">详情</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
     </div>
 
     <!-- Drill Down Drawer -->
-    <el-drawer v-model="drillVisible" :title="selectedIndicator?.name" size="800px" custom-class="drill-drawer"
-      destroy-on-close>
+    <el-drawer
+      v-model="drillVisible"
+      :title="selectedIndicator?.name"
+      :size="drillDrawerSize"
+      class="drill-drawer"
+      destroy-on-close
+    >
       <div class="drill-content" v-loading="drillLoading">
         <!-- Stats Summary -->
         <div class="stats-overview">
@@ -415,6 +432,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
+import { useBreakpoint } from '../../composables/useBreakpoint'
 import * as echarts from 'echarts'
 import { Download, QuestionFilled, Menu, CollectionTag, Operation, Cpu, Link } from '@element-plus/icons-vue'
 import {
@@ -508,6 +526,8 @@ const handleExportLib = () => {
 }
 
 const viewMode = ref('card')
+const { isMobile } = useBreakpoint()
+const drillDrawerSize = computed(() => (isMobile.value ? '100%' : '800px'))
 const currentTheme = ref('all')
 const trendChartRef = ref<HTMLElement | null>(null)
 let trendChart: echarts.ECharts | null = null
@@ -1100,8 +1120,24 @@ const handleDrill = async (item: any) => {
   } finally {
     drillLoading.value = false
     compositionLoading.value = false
+    void nextTick().then(() => {
+      setTimeout(() => {
+        drillTrendChart?.resize()
+        drillRankChart?.resize()
+      }, 400)
+    })
   }
 }
+
+watch([drillVisible, isMobile], ([open]) => {
+  if (!open) return
+  void nextTick(() => {
+    setTimeout(() => {
+      drillTrendChart?.resize()
+      drillRankChart?.resize()
+    }, 450)
+  })
+})
 
 const initDrillCharts = () => {
   if (drillTrendChartRef.value) {
@@ -1251,25 +1287,59 @@ onUnmounted(() => { trendChart?.dispose() })
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 16px;
   margin-bottom: 24px;
   padding: 12px 16px;
   background: var(--bg-surface);
   border-radius: 8px;
   border: 1px solid var(--border-color-light);
 
-  .theme-switch :deep(.el-radio-button__inner) {
-    border: none;
-    background: transparent;
-    color: var(--text-secondary);
-    padding: 8px 16px;
-    font-weight: 500;
+  .left-tools {
+    min-width: 0;
+    flex: 1;
   }
 
-  .theme-switch :deep(.el-radio-button__original-radio:checked + .el-radio-button__inner) {
+  .filter-theme-row {
+    width: 100%;
+  }
+
+  .theme-switch {
+    max-width: 100%;
+  }
+
+  /* 主题分类：独立圆角 + 间距，避免 Element 默认描边/拼接线 */
+  .theme-switch--scroll {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    border: none;
+    box-shadow: none;
+    background: transparent;
+  }
+
+  .theme-switch :deep(.el-radio-button) {
+    flex: 0 0 auto;
+  }
+
+  .theme-switch :deep(.el-radio-button__inner) {
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+    background: rgba(148, 163, 184, 0.12);
+    color: var(--text-secondary);
+    padding: 8px 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    border-radius: 10px !important;
+  }
+
+  .theme-switch :deep(.el-radio-button__original-radio:checked + .el-radio-button__inner),
+  .theme-switch :deep(.el-radio-button.is-active .el-radio-button__inner) {
     background: var(--primary);
     color: #ffffff;
-    /* FORCE WHITE TEXT */
-    border-radius: 0;
+    border-radius: 10px !important;
+    box-shadow: none !important;
   }
 
   .radio-label {
@@ -1281,7 +1351,28 @@ onUnmounted(() => { trendChart?.dispose() })
   .right-tools {
     display: flex;
     align-items: center;
-    gap: 16px;
+    flex-wrap: wrap;
+    gap: 12px;
+    min-width: 0;
+    flex: 0 1 auto;
+    justify-content: flex-end;
+
+    .filter-field-campus {
+      width: 100px;
+    }
+
+    .filter-field-dept {
+      width: 100px;
+    }
+
+    .filter-field-date {
+      width: 120px;
+    }
+
+    .filter-field-keyword {
+      width: 180px;
+      min-width: 120px;
+    }
 
     .divider {
       width: 1px;
@@ -1323,6 +1414,113 @@ onUnmounted(() => { trendChart?.dispose() })
           color: var(--primary-color);
           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
+      }
+    }
+
+    .export-actions {
+      display: inline-flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: stretch;
+      gap: 10px;
+
+      .export-btn {
+        margin: 0;
+        min-height: 40px;
+        padding: 10px 16px;
+        border-radius: 10px;
+        font-weight: 600;
+        justify-content: center;
+        box-sizing: border-box;
+      }
+
+      .export-btn--secondary {
+        border: 1px solid var(--border-color-light, #e2e8f0);
+        background: var(--bg-surface, #fff);
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-bar .left-tools {
+    width: 100%;
+  }
+
+  .filter-bar .filter-theme-row {
+    border-bottom: 1px solid var(--border-color-light);
+    margin-bottom: 8px;
+    padding-bottom: 12px;
+  }
+
+  .filter-bar .theme-switch--scroll {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    /* 隐藏滚动条，保留横向滑动/滚轮滚动 */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+      width: 0;
+      height: 0;
+    }
+
+    margin: 0 -4px;
+    padding-left: 4px;
+    padding-right: 4px;
+    outline: none;
+
+    :deep(.el-radio-button__inner) {
+      padding: 8px 12px;
+    }
+  }
+
+  .filter-bar .right-tools {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    width: 100%;
+    gap: 10px;
+
+    .filter-field-campus,
+    .filter-field-dept,
+    .filter-field-date,
+    .filter-field-keyword {
+      width: 100% !important;
+      max-width: none !important;
+    }
+
+    :deep(.filter-field-date.el-date-editor) {
+      width: 100% !important;
+    }
+
+    .divider {
+      display: none;
+    }
+
+    .view-toggles {
+      align-self: center;
+    }
+
+    .export-actions {
+      width: 100%;
+      flex-direction: column;
+      align-items: stretch;
+      margin-top: 4px;
+      gap: 10px;
+
+      .export-btn {
+        width: 100%;
+        min-height: 44px;
       }
     }
   }
@@ -1614,6 +1812,34 @@ onUnmounted(() => { trendChart?.dispose() })
   .card-body {
     margin-bottom: 16px;
 
+    .indicator-card__title-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 28px;
+      column-gap: 8px;
+      align-items: start;
+      margin-bottom: 4px;
+    }
+
+    .indicator-card__name {
+      min-width: 0;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1.45;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+    }
+
+    .indicator-card__hint {
+      width: 28px;
+      min-width: 28px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding-top: 2px;
+      box-sizing: border-box;
+    }
+
     .label {
       font-size: 14px;
       color: var(--text-secondary);
@@ -1665,15 +1891,70 @@ onUnmounted(() => { trendChart?.dispose() })
 }
 
 // --- Table Mode ---
+.monitor-table-scroll {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 .monitor-table {
   .table-name-cell {
     display: flex;
-    align-items: center;
-    gap: 8px;
+    align-items: flex-start;
+    gap: 10px;
     font-weight: 600;
+    cursor: pointer;
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .table-name-cell__main {
+    flex: 1;
+    min-width: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 28px;
+    column-gap: 8px;
+    align-items: start;
+    box-sizing: border-box;
+  }
+
+  .table-name-cell__text {
+    min-width: 0;
+    overflow: hidden;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    line-height: 1.45;
+    padding-right: 0;
+  }
+
+  .table-name-cell__hint {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    width: 28px;
+    min-width: 28px;
+    padding-top: 1px;
+    box-sizing: border-box;
+  }
+
+  .table-name-cell__hint-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+  }
+
+  .table-name-cell__hint-icon {
+    cursor: help;
+    color: #94a3b8;
+    font-size: 16px;
   }
 
   .icon-mini {
+    flex-shrink: 0;
     width: 24px;
     height: 24px;
     border-radius: 6px;
@@ -1690,6 +1971,13 @@ onUnmounted(() => { trendChart?.dispose() })
 
   .text-down {
     color: var(--error);
+  }
+
+  .flex-center {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    white-space: nowrap;
   }
 }
 
@@ -1776,6 +2064,22 @@ onUnmounted(() => { trendChart?.dispose() })
       }
     }
   }
+
+  @media (max-width: 768px) {
+    padding: 0 12px 32px;
+
+    .stats-overview {
+      grid-template-columns: 1fr;
+    }
+
+    .info-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .drill-section .drill-chart-container {
+      height: 220px;
+    }
+  }
 }
 
 :deep(.drill-drawer) {
@@ -1792,6 +2096,30 @@ onUnmounted(() => { trendChart?.dispose() })
       font-weight: 700;
       color: var(--text-primary);
     }
+  }
+}
+
+@media (max-width: 768px) {
+  :deep(.drill-drawer.el-drawer) {
+    width: 100% !important;
+  }
+
+  :deep(.drill-drawer .el-drawer__header) {
+    padding: 12px 12px 14px;
+    margin-bottom: 0;
+  }
+
+  :deep(.drill-drawer .el-drawer__title) {
+    font-size: 15px !important;
+    font-weight: 700;
+    line-height: 1.45;
+    word-break: break-word;
+    white-space: normal !important;
+    padding-right: 8px;
+  }
+
+  :deep(.drill-drawer .el-drawer__body) {
+    padding: 12px 0 24px;
   }
 }
 
@@ -1867,6 +2195,25 @@ onUnmounted(() => { trendChart?.dispose() })
       background: #1e293b;
       color: #fff;
     }
+  }
+
+  .filter-bar .filter-theme-row {
+    border-bottom-color: #334155;
+  }
+
+  .theme-switch :deep(.el-radio-button__inner) {
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.75);
+  }
+
+  .theme-switch :deep(.el-radio-button__original-radio:checked + .el-radio-button__inner) {
+    color: #fff;
+  }
+
+  .export-actions .export-btn--secondary {
+    border-color: #475569;
+    background: #1e293b;
+    color: rgba(255, 255, 255, 0.88);
   }
 
   .monitor-table {
