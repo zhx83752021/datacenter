@@ -4,11 +4,16 @@
 -- 结果，请按下面「=== 块」分段复制执行，每块执行完看输出/报错。
 -- =============================================================================
 
--- === 块 D0：诊断（先跑这个）===
+-- === 块 D0：诊断（前三句可一起执行）===
+-- 注意：Railway 部分界面会给 SQL 自动追加 LIMIT；MySQL 的 SHOW INDEX 不支持 LIMIT，
+-- 若出现 ERROR 1064 near 'LIMIT 100'，请不要再执行 SHOW INDEX，改看下面 statistics 查询或跳过。
 SELECT DATABASE() AS current_db;
 SELECT COUNT(*) AS user_cnt FROM sys_user WHERE username IN ('president','director_li','wangwu');
 SELECT COUNT(*) AS role_cnt FROM sys_role WHERE role_key IN ('president','director','common');
-SHOW INDEX FROM sys_role;
+SELECT INDEX_NAME, COLUMN_NAME, SEQ_IN_INDEX
+FROM INFORMATION_SCHEMA.STATISTICS
+WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'sys_role' AND COLUMN_NAME = 'role_key'
+ORDER BY INDEX_NAME, SEQ_IN_INDEX;
 
 -- === 块 D1：若 role_cnt=0，执行下面三句（不存在才插入）===
 INSERT INTO sys_role (role_name, role_key, role_sort, data_scope, status, del_flag)
